@@ -38,9 +38,11 @@ class UserController extends Controller
         $entity = new User();
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
-
+       
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
+            
+            $entity=$entity->setEtatCompte(1); //enable the account state by putting 1 as value
             $em->persist($entity);
             $em->flush();
 
@@ -78,7 +80,7 @@ class UserController extends Controller
     {
         $entity = new User();
         $form   = $this->createCreateForm($entity);
-
+        
         return $this->render('XmUserBundle:User:new.html.twig', array(
             'entity' => $entity,
             'form'   => $form->createView(),
@@ -145,7 +147,12 @@ class UserController extends Controller
             'method' => 'PUT',
         ));
 
-        $form->add('submit', 'submit', array('label' => 'Confirmer mise à jour'));
+        $form->add('submit', 'submit', array('label' => 'Confirmer mise à jour' ,
+                                             'class' => 'btn btn-warning'
+
+                                            )
+
+                 );
 
         return $form;
     }

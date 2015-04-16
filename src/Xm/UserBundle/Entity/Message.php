@@ -9,6 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="Message", indexes={@ORM\Index(name="IDX_790009E3F624B39D", columns={"sender_id"})})
  * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Xm\UserBundle\Entity\MessageRepository")
+ */ 
  */
 class Message
 {

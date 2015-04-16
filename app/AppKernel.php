@@ -20,6 +20,9 @@ class AppKernel extends Kernel
             new Xm\CovoiturageBundle\XmCovoiturageBundle(),
             new Xm\UserBundle\XmUserBundle(),
 
+
+
+           
             
         );
 

@@ -3,6 +3,7 @@
 namespace Xm\CovoiturageBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 use Xm\CovoiturageBundle\Entity\Ville ;
 /**
  * Covoiturage
@@ -91,23 +92,26 @@ class Covoiturage
      */
     private $resume;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Ville")
-     * @ORM\JoinColumn(onDelete="SET NULL")
-     **/
-    private $ville_depart;
-
-     /**
-     * @ORM\ManyToOne(targetEntity="Ville")
-     * @ORM\JoinColumn(onDelete="SET NULL")
-     **/
-    private $ville_arrivee;
-
+    
      /**
      * @ORM\ManyToOne(targetEntity="Xm\UserBundle\Entity\User")
      * @ORM\JoinColumn(onDelete="CASCADE")
      **/
     private $initiateur;
+
+
+    /**
+     * @ORM\OneToMany(targetEntity="Trajet", mappedBy="Covoiturage")
+     **/
+     private $trajets;
+
+
+    
+
+    public function __construct() 
+     {
+        $this->trajets = new ArrayCollection();
+     }
 
      /**
      * Get id

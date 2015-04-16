@@ -2,47 +2,55 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>{% block title %}Welcome!{% endblock %}</title>
+        <title>{% block title %}XarrMatt{% endblock %}</title>
         {% block stylesheets %}
-             <link href="{{ asset('Resources/bootstrap/css/bootstrap.css') }}" type="text/css" rel="stylesheet" />
-             <link href="{{ asset('Resources/bootstrap/css/bootstrap.css') }}" type="text/css" rel="stylesheet" />
+              
+            <link href="{{ asset('//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css') }}" type="text/css" rel="stylesheet" />
+            
+             <link href="{{ asset('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css') }}" type="text/css" rel="stylesheet" />
+
              <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
-         {% endblock %}
+        
+             <style type="text/css">
+               .header a{color:black}
+                a i.fa-facebook {color:#3b5998}
+                a i.fa-twitter {color:#55ACEE}
+                a i.fa-google-plus  {color :#DD4B39}
+                
+              </style>
+        {% endblock %}
 
          {% block javascripts %}
-          <script src="{{ asset('Resources/bootstrap/js/bootstrap.js') }}" type="text/javascript"></script>
+          <script src="{{ asset('Resources/jquery.js') }}" ></script>
+          <script src="{{ asset('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js') }}" type="text/javascript"></script>
+
 
          {% endblock %}
         
     </head>
-    <body style="background-color:#DFDEDE">
-             <div class="container" style="background-color:white">
+    <body >
+             <div class="container-fluid" style="background-color:#FDFDFD" >
 
 
              {% block header %}
-                 <div class="page-header">
+                 <div class="header">
                         <div class="row ">
-                            <div class="col-lg-1 col-lg-offset-1">
+                            <div class="col-sm-1">
                                 <!--img src="{{ asset('Resources/img/logo.jpg') }}"--> 
                             </div> 
-                            <div class="col-lg-4 col-lg-offset-6">
-                               
-                                 <ul class="nav nav-tabs">
-                                  <li role="navigation" class="active"><a href="#">Home</a></li>
-                                  
-                                  {% if session.login is defined %}
-                                      <li role="navigation"><a href="#">Profile</a></li>
-                                      <li role="navigation"><a href="#">Messages</a></li>
-                                      <li role="navigation"><a href="#">Covoiturage</a></li>
-                                      <li role="navigation"><a href="#">Notifications</a></li>
-                                  
-                                  {%  else %}
-                                     <li role="navigation"><a href="#">Se connecter</a></li>
-                                     <li role="navigation"><a href="#">S'inscrire</a></li>
-                                 {% endif  %}
-                                  <li role="navigation"><a href="#">Guide</a></li>
-                                </ul> 
-                            </div> 
+                                               
+                             {% if session.login is  defined %}
+                                     {% include 'menu_membre.html.twig'  %}
+                                {%  else %}   
+                                     {% include 'menu_internaute.html.twig'  %} 
+
+                             {%  endif %}
+
+                              <div class="col-sm-2 ">
+                                 <a href="#"><i class="fa fa-facebook fa-2x"></i></a>
+                                 <a href="#"><i class="fa fa-twitter fa-2x"></i></a>
+                                 <a href="#"><i class="fa fa-google-plus fa-2x"></i></a>
+                            </div>
 
                         </div>
                   </div>
@@ -54,8 +62,27 @@
              {% endblock content %}
 
              {% block footer %}
-                  <div class="page-header">
+                  <div class="footer" >
                     
+                    <div class="row">
+
+                       <div class="col-sm-3">
+                         <span >XarrMatt</span>  
+                       </div>
+
+                        <div class="col-sm-3">
+                           <span>A Propos</span> 
+                       </div>
+                        <div class="col-sm-3">
+                            <span>Réseaux Sociaux</span>
+                       </div>
+                        <div class="col-sm-3">
+                           jjijjjj
+                       </div>
+                        
+                       
+                    </div>
+
                  </div>
                
               

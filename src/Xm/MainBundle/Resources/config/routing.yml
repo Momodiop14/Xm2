@@ -4,7 +4,7 @@ xm_main_accueil:
 
 xm_main_connexion:
     path:     /connexion
-    defaults: { _controller: XmMainBundle:Default:connexion }
+    defaults: { _controller: XmMainBundle:Default:newLogin }
 
 
 xm_main_validation_connexion:

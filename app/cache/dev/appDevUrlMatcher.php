@@ -143,7 +143,7 @@ class appDevUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirectab
             }
 
             // utilisateur_new
-            if ($pathinfo === '/utilisateur/new') {
+            if ($pathinfo === '/utilisateur/inscription') {
                 return array (  '_controller' => 'Xm\\UserBundle\\Controller\\UserController::newAction',  '_route' => 'utilisateur_new',);
             }
 
@@ -267,7 +267,7 @@ class appDevUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirectab
 
         // xm_main_connexion
         if ($pathinfo === '/connexion') {
-            return array (  '_controller' => 'Xm\\MainBundle\\Controller\\DefaultController::connexionAction',  '_route' => 'xm_main_connexion',);
+            return array (  '_controller' => 'Xm\\MainBundle\\Controller\\DefaultController::newLoginAction',  '_route' => 'xm_main_connexion',);
         }
 
         // xm_main_validation_connexion

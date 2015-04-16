@@ -188,7 +188,7 @@ class __TwigTemplate_48b37c8c36ce1a8e12908e54776e157c03b97850fe69c522e1a522a7336
     public function block_form_group_class($context, array $blocks = array())
     {
         // line 71
-        echo "col-sm-6";
+        echo "col-sm-4";
     }
 
     public function getTemplateName()

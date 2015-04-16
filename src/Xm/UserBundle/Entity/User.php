@@ -3,12 +3,20 @@
 namespace Xm\UserBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Xm\CovoiturageBundle\Entity\Ville;
+use Symfony\Component\Validator\Constraints as Assert ;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * User
  *
  * @ORM\Table(name="User", indexes={@ORM\Index(name="IDX_2DA17977A73F0036", columns={"ville_id"})})
  * @ORM\Entity
+ *@ORM\Entity(repositoryClass="Xm\UserBundle\Entity\UserRepository")
+ * @UniqueEntity("email")
+ * @UniqueEntity("username")
+ * @UniqueEntity("telephone")
  */
 class User
 {
@@ -25,15 +33,39 @@ class User
      * @var string
      *
      * @ORM\Column(name="username", type="string", unique=true, length=255, nullable=false)
+     * @assert\NotBlank()
+     * @Assert\Length(
+     *      min = "8",
+     *      max = "50",
+     *      minMessage = "Votre pseudonyme  doit faire au moins {{ limit }} caractères",
+     *      maxMessage = "Votre pseudonyme  ne peut pas être plus long que {{ limit }} caractères"
+     * )
+     * /**
+     * @Assert\Regex(
+     *                pattern="/^\w+/",
+     *                message="Le pseudonyme ne doit contenir que des caractères alphanumériques ",   
+     *                match =true
+     *
+     *             )
+     *
+     *
+     *                                      
      */
     private $username;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="passwords", type="string", length=255, nullable=false)
+     * @ORM\Column(name="password", type="string", length=255, nullable=false)
+     * @assert\NotBlank()
+     * @Assert\Length(
+     *      min = "8",
+     *      max = "50",
+     *      minMessage = "Votre mot de passe doit faire au moins {{ limit }} caractères",
+     *      maxMessage = "Votre mot de passe ne peut pas être plus long que {{ limit }} caractères"
+     * )                                      
      */
-    private $passwords;
+    private $password;
 
     /**
      * @var string
@@ -63,12 +95,27 @@ class User
      */
     private $email;
 
+   
     /**
      * @var string
      *
-     * @ORM\Column(name="telephone", type="decimal", precision=10, scale=0, nullable=false)
+     * @ORM\Column(name="telephone", type="string", length=9 , nullable=false)
+     * @Assert\length(
+     *      min = "9",
+     *      max = "9",
+     *      minMessage = "Votre numero de telephone doit faire au moins {{ limit }} caractères",
+     *      maxMessage = "Votre numero de telephone ne peut pas être plus long que {{ limit }} caractères"
+     *             )
+     *@Assert\Regex(
+     *                    pattern="/(77|33|30|70|76|78)\d{7}/",
+     *                    match=true,
+     *                    message="Votre numero doit commencer par (77 ou 33 ou 30 ou ou  70 ou 76 ou  78) "
+     *              
+     *           )
      */
     private $telephone;
+
+   
 
     /**
      * @var string
@@ -94,7 +141,8 @@ class User
      */
     private $ville;
 
-
+     
+    
 
     /**
      * Get id
@@ -130,26 +178,26 @@ class User
     }
 
     /**
-     * Set passwords
+     * Set password
      *
-     * @param string $passwords
+     * @param string $password
      * @return User
      */
-    public function setPasswords($passwords)
+    public function setPassword($password)
     {
-        $this->passwords = $passwords;
+        $this->password = $password;
 
         return $this;
     }
 
     /**
-     * Get passwords
+     * Get password
      *
      * @return string 
      */
-    public function getPasswords()
+    public function getPassword()
     {
-        return $this->passwords;
+        return $this->password;
     }
 
     /**

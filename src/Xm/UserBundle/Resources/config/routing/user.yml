@@ -7,7 +7,7 @@ utilisateur_show:
     defaults: { _controller: "XmUserBundle:User:show" }
 
 utilisateur_new:
-    path:     /new
+    path:     /inscription
     defaults: { _controller: "XmUserBundle:User:new" }
 
 utilisateur_create:

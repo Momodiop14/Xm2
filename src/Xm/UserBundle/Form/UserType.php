@@ -15,20 +15,37 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username','text' ,array('label' => 'Pseudonyme') )
-            ->add('passwords','password',array('label' => 'Mot de passe') )
+            ->add('username','text' ,array(   'label' => 'Pseudonyme') )
+            ->add('password','password',array('label' => 'Mot de passe') )
             ->add('prenom')
             ->add('nom')
+            ->add('dateNaissance' ,'date', array(  'label' => 'Date de naissance ' , 
+                                                   'widget' => 'single_text',
+                                                    
+                                                   
+
+                                                'attr' => array(
+                                                                   'class'=>'datepicker',
+                                                                   
+
+                                                                   
+
+                                                                ) 
+
+                                                )
+                 )
             ->add('email','email')
-            ->add('telephone','number',array('max_length' => 9 ) )
-            ->add('address')
+            ->add('telephone','text',array('max_length' => 9  ,'label' => 'Téléphone') )
+            ->add('address','text',array('label' => 'Adresse'))
             ->add('ville', 'entity', array(
                     'class' => 'XmCovoiturageBundle:Ville',
                     'property' => 'nom_ville',
-                    'multiple' => true)
+                    'multiple' => false
+                       )
                  )
              ->add('submit', 'submit', array('label' => 'Créer votre compte',
                                              'attr'  => array('class' => 'btn-primary')
+                                             
                                           ) 
                  );
         
