@@ -61,19 +61,18 @@ class Reservation
      **/
     private $refCovoiturage;
 
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Ville")
-     * @ORM\JoinColumn(onDelete="CASCADE")
+    
+     /**
+     * @ORM\ManyToMany(targetEntity="Trajet", mappedBy="reservations")
+     *
      **/
-    private $villeEmbarquement;
+    private $trajets;
+    
 
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Ville")
-     * @ORM\JoinColumn(onDelete="CASCADE")
-     **/
-    private $villeDescente;
+     public function __construct() {
+        $this->trajets = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     /**
      * Get id
@@ -222,50 +221,38 @@ class Reservation
     {
         return $this->refCovoiturage;
     }
+  
 
     /**
-     * Set villeEmbarquement
+     * Add trajets
      *
-     * @param \Xm\CovoiturageBundle\Entity\Ville $villeEmbarquement
+     * @param \Xm\CovoiturageBundle\Entity\Trajet $trajets
      * @return Reservation
      */
-    public function setVilleEmbarquement(\Xm\CovoiturageBundle\Entity\Ville $villeEmbarquement )
+    public function addTrajet(\Xm\CovoiturageBundle\Entity\Trajet $trajets)
     {
-        $this->villeEmbarquement = $villeEmbarquement;
+        $this->trajets[] = $trajets;
 
         return $this;
     }
 
     /**
-     * Get villeEmbarquement
+     * Remove trajets
      *
-     * @return \Xm\CovoiturageBundle\Entity\Ville 
+     * @param \Xm\CovoiturageBundle\Entity\Trajet $trajets
      */
-    public function getVilleEmbarquement()
+    public function removeTrajet(\Xm\CovoiturageBundle\Entity\Trajet $trajets)
     {
-        return $this->villeEmbarquement;
+        $this->trajets->removeElement($trajets);
     }
 
     /**
-     * Set villeDescente
+     * Get trajets
      *
-     * @param \Xm\CovoiturageBundle\Entity\Ville $villeDescente
-     * @return Reservation
+     * @return \Doctrine\Common\Collections\Collection 
      */
-    public function setVilleDescente(\Xm\CovoiturageBundle\Entity\Ville $villeDescente )
+    public function getTrajets()
     {
-        $this->villeDescente = $villeDescente;
-
-        return $this;
-    }
-
-    /**
-     * Get villeDescente
-     *
-     * @return \Xm\CovoiturageBundle\Entity\Ville 
-     */
-    public function getVilleDescente()
-    {
-        return $this->villeDescente;
+        return $this->trajets;
     }
 }

@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 use Xm\UserBundle\Entity\Message;
+use Xm\UserBundle\Entity\MessageRepository;
 use Xm\UserBundle\Form\MessageType;
 
 /**

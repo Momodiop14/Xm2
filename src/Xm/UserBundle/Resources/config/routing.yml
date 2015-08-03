@@ -1,6 +1,0 @@
-xm_user_utilisateur:
-    resource: "@XmUserBundle/Resources/config/routing/user.yml"
-    prefix:   /
-XmUserBundle_message:
-        resource: "@XmUserBundle/Resources/config/routing/message.yml"
-        prefix:   /message

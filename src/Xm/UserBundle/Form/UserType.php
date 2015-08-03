@@ -21,33 +21,21 @@ class UserType extends AbstractType
             ->add('nom')
             ->add('dateNaissance' ,'date', array(  'label' => 'Date de naissance ' , 
                                                    'widget' => 'single_text',
-                                                    
-                                                   
-
-                                                'attr' => array(
-                                                                   'class'=>'datepicker',
-                                                                   
-
-                                                                   
-
-                                                                ) 
+                                                                                                    
+                                                   'attr' => array(
+                                                                    'class'=>'datepicker',
+                                                                  ) 
 
                                                 )
                  )
             ->add('email','email')
             ->add('telephone','text',array('max_length' => 9  ,'label' => 'Téléphone') )
-            ->add('address','text',array('label' => 'Adresse'))
-            ->add('ville', 'entity', array(
-                    'class' => 'XmCovoiturageBundle:Ville',
-                    'property' => 'nom_ville',
-                    'multiple' => false
-                       )
-                 )
-             ->add('submit', 'submit', array('label' => 'Créer votre compte',
-                                             'attr'  => array('class' => 'btn-primary')
-                                             
-                                          ) 
+            ->add('localite','text',array(    'label' => 'votre localité' ,
+                                             'attr' => array(
+                                                             'id'=>'where' ) 
+                                         )               
                  );
+           
         
     }
     

@@ -1,0 +1,51 @@
+{% extends '::base.html.twig' %}
+
+{% block javascripts%}
+  {{parent()}}
+  <script type="text/javascript">
+     $(document).ready(function(){
+
+           if(document.getElementById('error')!=null)
+             {
+               notify("les coordonnées saisies sont incorretes ,veuillez réessayer" ,"danger");
+             } 
+
+           });
+      
+  </script>
+   
+
+{% endblock %}
+
+{% block content %}
+    <h1 style="margin-top:80px" >Authentification</h1>
+
+   {% if error %}
+   
+     <input type="hidden" id="error"  />
+  
+   {% endif %}
+  <div class="col-sm-6">
+
+        <form action="{{ path('xm_main_validation_connexion') }}" method="post">
+                                   
+          <label for="username">Username: </label>
+          {%if last_username is defined %}
+             <input type="text" class="form-control" id="username" name="username" value="{{ last_username }}" />
+            {% else %}
+             
+              <input type="text" class="form-control" id="username" name="username"  />
+         
+          {%endif%}
+          <label for="password">Password: </label>
+          <input type="password" class="form-control" id="password" name="password" />
+          
+           <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
+            
+            <br>  <br>   
+           <button class="btn btn-primary" type="submit">Se connecter</button>
+      </form>
+
+  </div>
+  
+{% endblock %}

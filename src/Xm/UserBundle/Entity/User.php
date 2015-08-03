@@ -4,21 +4,21 @@ namespace Xm\UserBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use Xm\CovoiturageBundle\Entity\Ville;
 use Symfony\Component\Validator\Constraints as Assert ;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\UserInterface as UserInterface;
 
 /**
  * User
  *
- * @ORM\Table(name="User", indexes={@ORM\Index(name="IDX_2DA17977A73F0036", columns={"ville_id"})})
+ * @ORM\Table()
  * @ORM\Entity
- *@ORM\Entity(repositoryClass="Xm\UserBundle\Entity\UserRepository")
+ * @ORM\Entity(repositoryClass="Xm\UserBundle\Entity\UserRepository")
  * @UniqueEntity("email")
  * @UniqueEntity("username")
  * @UniqueEntity("telephone")
  */
-class User
+class User implements UserInterface, \Serializable
 {
     /**
      * @var integer
@@ -68,6 +68,12 @@ class User
     private $password;
 
     /**
+    * @var string
+    * @ORM\Column(type="string", length=32)
+    */
+     private $salt;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="prenom", type="string", length=255, nullable=false)
@@ -85,6 +91,7 @@ class User
      * @var \DateTime
      *
      * @ORM\Column(name="date_naissance", type="date", nullable=false)
+     * @Assert\LessThan("-18 years",message ="vous devez avoir minimum 18 ans")
      */
     private $dateNaissance;
 
@@ -114,15 +121,21 @@ class User
      *           )
      */
     private $telephone;
-
+    
+    /**
+     * @var \User
+     *
+     * @ORM\ManyToMany(targetEntity="Message" , mappedBy="receivers" )
+     */
+    private $messages ;
    
 
     /**
      * @var string
      *
-     * @ORM\Column(name="address", type="string", length=255, nullable=false)
+     * @ORM\Column(name="localite", type="string", length=255, nullable=false)
      */
-    private $address;
+    private $localite;
 
     /**
      * @var boolean
@@ -131,18 +144,13 @@ class User
      */
     private $etatCompte;
 
-    /**
-     * @var \Ville
-     *
-     * @ORM\ManyToOne(targetEntity="Xm\CovoiturageBundle\Entity\Ville")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="ville_id", referencedColumnName="id")
-     * })
-     */
-    private $ville;
-
-     
     
+    public function __construct()
+    {
+        
+        $this->salt = md5(uniqid(null, true));
+        
+    }
 
     /**
      * Get id
@@ -166,17 +174,15 @@ class User
 
         return $this;
     }
-
-    /**
-     * Get username
-     *
-     * @return string 
+    
+     /**
+     * @inheritDoc
      */
     public function getUsername()
     {
         return $this->username;
     }
-
+    
     /**
      * Set password
      *
@@ -191,16 +197,14 @@ class User
     }
 
     /**
-     * Get password
-     *
-     * @return string 
+     * @inheritDoc
      */
     public function getPassword()
     {
         return $this->password;
     }
 
-    /**
+      /**
      * Set prenom
      *
      * @param string $prenom
@@ -362,25 +366,130 @@ class User
     }
 
     /**
-     * Set ville
+     * Set localite
      *
-     * @param \Xm\CovoiturageBundle\Entity\Ville $ville
+     * @param string $localite
      * @return User
      */
-    public function setVille(\Xm\CovoiturageBundle\Entity\Ville $ville )
+    public function setLocalite($localite)
     {
-        $this->ville = $ville;
+        $this->localite = $localite;
 
         return $this;
     }
 
     /**
-     * Get ville
+     * Get localite
      *
-     * @return \Xm\CovoiturageBundle\Entity\Ville 
+     * @return string 
      */
-    public function getVille()
+    public function getLocalite()
     {
-        return $this->ville;
+        return $this->localite;
     }
+  
+
+    /**
+     * @inheritDoc
+     */
+    public function getSalt()
+    {
+        return $this->salt;
+    }
+
+    
+
+    /**
+     * @inheritDoc
+     */
+    public function getRoles()
+    {
+        return array('ROLE_USER');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function eraseCredentials()
+    {
+    }
+
+   /**
+     * @see \Serializable::serialize()
+     */
+    public function serialize()
+    {
+        return serialize(array(
+            $this->id,
+        ));
+    }
+
+    /**
+     * @see \Serializable::unserialize()
+     */
+    public function unserialize($serialized)
+    {
+        list (
+            $this->id,
+        ) = unserialize($serialized);
+    }
+
+   
+
+    /**
+     * Set salt
+     *
+     * @param string $salt
+     * @return User
+     */
+    public function setSalt($salt)
+    {
+        $this->salt = $salt;
+
+        return $this;
+    }
+
+    /**
+     * Add messages
+     *
+     * @param \Xm\UserBundle\Entity\Message $messages
+     * @return User
+     */
+    public function addMessage(\Xm\UserBundle\Entity\Message $messages)
+    {
+        $this->messages[] = $messages;
+
+        return $this;
+    }
+
+    /**
+     * Remove messages
+     *
+     * @param \Xm\UserBundle\Entity\Message $messages
+     */
+    public function removeMessage(\Xm\UserBundle\Entity\Message $messages)
+    {
+        $this->messages->removeElement($messages);
+    }
+
+    /**
+     * Get messages
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMessages()
+    {
+        return $this->messages;
+    }
+
+    /**
+    * Is the given User connected is the author of this Request?
+    * @return bool
+    */
+    public function isAuthor(User $user)
+    {
+
+      return $user && $user->getUsername() == $this->getUsername();
+    }
+
 }

@@ -307,52 +307,7 @@ class Covoiturage
         return $this->resume;
     }
 
-    /**
-     * Set ville_depart
-     *
-     * @param \Xm\CovoiturageBundle\Entity\Ville $villeDepart
-     * @return Covoiturage
-     */
-    public function setVilleDepart(\Xm\CovoiturageBundle\Entity\Ville $villeDepart )
-    {
-        $this->ville_depart = $villeDepart;
-
-        return $this;
-    }
-
-    /**
-     * Get ville_depart
-     *
-     * @return \Xm\CovoiturageBundle\Entity\Ville 
-     */
-    public function getVilleDepart()
-    {
-        return $this->ville_depart;
-    }
-
-    /**
-     * Set ville_arrivee
-     *
-     * @param \Xm\CovoiturageBundle\Entity\Ville $villeArrivee
-     * @return Covoiturage
-     */
-    public function setVilleArrivee(\Xm\CovoiturageBundle\Entity\Ville $villeArrivee)
-    {
-        $this->ville_arrivee = $villeArrivee;
-
-        return $this;
-    }
-
-    /**
-     * Get ville_arrivee
-     *
-     * @return \Xm\CovoiturageBundle\Entity\Ville 
-     */
-    public function getVilleArrivee()
-    {
-        return $this->ville_arrivee;
-    }
-
+    
     /**
      * Set initiateur
      *
@@ -420,5 +375,38 @@ class Covoiturage
     public function getVisible()
     {
         return $this->visible;
+    }
+
+    /**
+     * Add trajets
+     *
+     * @param \Xm\CovoiturageBundle\Entity\Trajet $trajets
+     * @return Covoiturage
+     */
+    public function addTrajet(\Xm\CovoiturageBundle\Entity\Trajet $trajets)
+    {
+        $this->trajets[] = $trajets;
+
+        return $this;
+    }
+
+    /**
+     * Remove trajets
+     *
+     * @param \Xm\CovoiturageBundle\Entity\Trajet $trajets
+     */
+    public function removeTrajet(\Xm\CovoiturageBundle\Entity\Trajet $trajets)
+    {
+        $this->trajets->removeElement($trajets);
+    }
+
+    /**
+     * Get trajets
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTrajets()
+    {
+        return $this->trajets;
     }
 }

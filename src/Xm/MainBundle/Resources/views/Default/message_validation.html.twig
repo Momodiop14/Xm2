@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}XarrMatt{% endblock %}</title>
+        {% block stylesheets %}
+              
+            <link href="{{ asset('Resources/font-awesome/css/font-awesome.min.css') }}" type="text/css" rel="stylesheet" />
+
+             <link href="{{ asset('Resources/bootstrap/css/bootstrap.min.css') }}" type="text/css" rel="stylesheet" />
+
+             <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        
+             <style type="text/css">
+               .header a{color:black}
+                li:hover a i.fa-facebook {color:#3b5998}
+                li:hover a i.fa-twitter{color:#55ACEE}
+                li:hover a i.fa-google-plus  {color :#DD4B39}
+                
+                
+              </style>
+        {% endblock %}
+
+        
+        
+    </head>
+    <body >
+             <div class="container-fluid" style="background-color:#FDFDFD" >
+                
+                 <div class="jumbotron">
+                    <h1>Hello, world!</h1>
+                    <p>...</p>
+                    <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a></p>
+                 </div>
+
+             </div>
+                        
+                       
+                             
+              
+        
+        
+      
+        
+    </body>
+</html>

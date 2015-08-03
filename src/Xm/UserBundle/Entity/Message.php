@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Entity(repositoryClass="Xm\UserBundle\Entity\MessageRepository")
  */ 
- */
+ 
 class Message
 {
     /**
@@ -54,7 +54,19 @@ class Message
      */
     private $sender;
 
+    /**
+     * @var \User
+     *
+     * @ORM\ManyToMany(targetEntity="User",inversedBy ="messages")
+     * @ORM\JoinTable("messages_receivers")
+     */
+    private  $receivers ;
 
+   
+     public function __construct()
+      {
+         $this->receivers = new \Doctrine\Common\Collections\ArrayCollection(); 
+      } 
 
     /**
      * Get id
@@ -156,5 +168,39 @@ class Message
     public function getSender()
     {
         return $this->sender;
+    }
+
+    /**
+     * Get receivers
+     *
+     * @return \Xm\UserBundle\Entity\User 
+     */
+    public function getReceivers()
+    {
+        return $this->receivers;
+    }
+
+      /**
+     * Add receiver
+     *
+     * @param \Xm\UserBundle\Entity\User $receiver
+     * @return Message
+     */
+    public function addReceiver(\Xm\UserBundle\Entity\User $receiver)
+    {
+        $this->receivers[] = $receiver;
+
+        return $this;
+    }
+
+
+     /**
+    * Is the given User connected is the author of this Message?
+    * @return bool
+    */
+    public function isAuthor(User $user_connected)
+    {
+
+      return $user->getUsername() == $this->getUsername();
     }
 }

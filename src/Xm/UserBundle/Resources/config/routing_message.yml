@@ -3,28 +3,23 @@ message:
     defaults: { _controller: "XmUserBundle:Message:index" }
 
 message_show:
-    path:     /{id}/show
+    path:     /{username}
+    defaults: { _controller: "XmUserBundle:Message:show" }
+
+message_show:
+    path:     /{username}
     defaults: { _controller: "XmUserBundle:Message:show" }
 
 message_new:
-    path:     /new
+    path:     /nouveau
     defaults: { _controller: "XmUserBundle:Message:new" }
 
 message_create:
-    path:     /create
+    path:     /creer
     defaults: { _controller: "XmUserBundle:Message:create" }
     methods:  POST
 
-message_edit:
-    path:     /{id}/edit
-    defaults: { _controller: "XmUserBundle:Message:edit" }
-
-message_update:
-    path:     /{id}/update
-    defaults: { _controller: "XmUserBundle:Message:update" }
-    methods:  [POST, PUT]
-
 message_delete:
-    path:     /{id}/delete
+    path:     /{username}/{id}/supprimer
     defaults: { _controller: "XmUserBundle:Message:delete" }
     methods:  [POST, DELETE]

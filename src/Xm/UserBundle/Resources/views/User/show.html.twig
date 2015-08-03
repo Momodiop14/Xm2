@@ -1,21 +1,13 @@
 {% extends '::base.html.twig' %}
 
-{% block content -%}
+{% block content %}
     <h1>User</h1>
 
     <table class="record_properties">
         <tbody>
             <tr>
-                <th>Id</th>
-                <td>{{ entity.id }}</td>
-            </tr>
-            <tr>
                 <th>Username</th>
                 <td>{{ entity.username }}</td>
-            </tr>
-            <tr>
-                <th>Passwords</th>
-                <td>{{ entity.password }}</td>
             </tr>
             <tr>
                 <th>Prenom</th>
@@ -35,26 +27,21 @@
             </tr>
             <tr>
                 <th>Address</th>
-                <td>{{ entity.address }}</td>
+                <td>{{ entity.localite }}</td>
             </tr>
-            <tr>
-                <th>Etatcompte</th>
-                <td>{{ entity.etatCompte }}</td>
-            </tr>
+           
         </tbody>
     </table>
 
         <ul class="record_actions">
-    <li>
-        <a href="{{ path('utilisateur') }}">
-            Back to the list
-        </a>
-    </li>
-    <li>
-        <a href="{{ path('utilisateur_edit', { 'id': entity.id }) }}">
+      {% if entity.isAuthor(app.user) %}
+      <li>
+        <a href="{{ path('utilisateur_edit', { 'username': entity.username }) }}">
             Edit
         </a>
-    </li>
-    <li>{{ form(delete_form) }}</li>
+     </li>
+   
+      {%endif %}
+   
 </ul>
 {% endblock %}

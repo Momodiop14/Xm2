@@ -1,0 +1,20 @@
+utilisateur_show:
+    path:     /{username}
+    defaults: { _controller: "XmUserBundle:User:show" }
+
+utilisateur_edit:
+    path:     /{username}/modifier
+    defaults: { _controller: "XmUserBundle:User:edit" }
+
+utilisateur_update:
+    path:     /{username}/update
+    defaults: { _controller: "XmUserBundle:User:update" }
+    methods:  [POST, PUT]
+
+utilisateur_delete:
+    path:     /{username}/desactivation
+    defaults: { _controller: "XmUserBundle:User:delete" }
+
+
+
+
