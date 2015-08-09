@@ -1,11 +1,34 @@
- <div class="col-lg-6 col-lg-offset-3">
-                               
-       <ul class="nav nav-tabs">
-          <li role="navigation" class="active"><a href="#">Accueil</a></li>
-          <li role="navigation"><a href="#">Profil</a></li>
-          <li role="navigation"><a href="#">Messages</a></li>
-          <li role="navigation"><a href="#">Covoiturage</a></li>
-          <li role="navigation"><a href="#">Notifications</a></li>
-          <li role="navigation"><a href="#">Guide</a></li>
-       </ul> 
-       </div> 
+ <div class="row">
+      <nav role="navigation" class="navbar navbar-inverse navbar-fixed-top">
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <!-- <a href="#" class="navbar-brand"><img src="{{ asset('Resources/img/logo.jpg') }}"> </a> -->
+                    </div>
+                    <!-- Collection of nav links and other content for toggling -->
+                    <div id="navbarCollapse" class="collapse navbar-collapse">
+                        
+                        <ul class="nav navbar-nav navbar-right">
+                                <li role="navigation" class="active"><a href="{{ path('xm_main_accueil') }}"><span class="fa fa-home fa-2x"></span> Accueil</a></li>
+                                <li role="navigation"><a href="{{ path('utilisateur_show',{'username': app.security.getToken().getUser().getUsername() } ) }}"> <span class="fa fa-user fa-2x"></span> {{ app.security.getToken().getUser().getUsername() }}</a></li>
+                                <li role="navigation"><a href="#"><span class="fa fa-envelope-o fa-2x"></span> Messages</a></li>
+                                <li role="navigation"><a href="#"><span class="fa fa-car fa-2x"></span> Mes Covoiturages</a></li>
+                                <li role="navigation"><a href="#"><span class="fa fa-globe fa-2x"></span> Notifications</a></li>
+                                <li role="navigation"><a href="#"><span class="fa fa-info fa-2x"></span> Guide</a></li>
+                                 <li role="navigation"><a href="{{ path('xm_main_deconnexion') }}"><span class="fa fa-sign-out fa-2x"></span>  Deconnexion</a></li>
+                              <li><a href="#"><i class="fa fa-facebook fa-2x"></i></a></li>
+                              <li><a href="#"><i class="fa fa-twitter fa-2x"></i></a></li>
+                              <li><a href="#"><i class="fa fa-google-plus fa-2x"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+         </nav>
+
+ </div>
+

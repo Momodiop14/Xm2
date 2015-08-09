@@ -7,21 +7,22 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request ;
 use Symfony\Component\Security\Core\SecurityContext;
 
+
 use Xm\UserBundle\Form\UserType;
 use Xm\UserBundle\Entity\User;
 
 class DefaultController extends Controller
 {
 	 
-    
-
-    public function indexAction()
-     {
-       //  if ($this->get('security.context')->isGranted('ROLE_USER'))
-         //    return $this->render('XmMainBundle:Default:index_memb.html.twig');
-         
-         return $this->render('XmMainBundle:Default:index.html.twig');
-     }
+      private function checkGrant()
+       {
+         if (false === $this->get('security.context')->isGranted('IS_AUTHENTICATED_ANONYMOUSLY') ) 
+             throw new AccessDeniedException();
+       }
+        public function indexAction()
+         {
+               return $this->render('XmMainBundle:Default:index.html.twig');
+         }
 
      public function guideAction()
      {
@@ -40,15 +41,16 @@ class DefaultController extends Controller
                 ));
 
         return $form;
-    }
+      }
 
      
      /**
      * Displays a form to create a new User entity.
-     *
+     * 
      */
-    public function newAction()
-    {
+     public function newAction()
+     {
+       
         $entity = new User();
         $form   = $this->createCreateForm($entity);
         
@@ -56,7 +58,7 @@ class DefaultController extends Controller
             'entity' => $entity,
             'form'   => $form->createView(),
         ));
-    }
+     }
 
      /**
      * Creates a form to create a User entity.
@@ -65,8 +67,8 @@ class DefaultController extends Controller
      *
      * @return \Symfony\Component\Form\Form The form
      */
-    private function createCreateForm(User $entity)
-    {
+     private function createCreateForm(User $entity)
+     {
         $form = $this->createForm(new UserType(), $entity, array(
             'action' => $this->generateUrl('utilisateur_create'),
             'method' => 'POST',
@@ -79,23 +81,25 @@ class DefaultController extends Controller
                  );
 
         return $form;
-    }
+     }
 
 
      /**
      * Creates a new User entity.
      *
      */
-    public function createAction(Request $request)
-    {
+     public function createAction(Request $request)
+     {
        
+        $this->checkGrant();
+
         $entity = new User();
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
        
         if ($form->isValid())
          {
-             
+                
              $em = $this->getDoctrine()->getManager();
             
              $factory = $this->get('security.encoder_factory');
@@ -119,10 +123,10 @@ class DefaultController extends Controller
             'entity' => $entity,
             'form'   => $form->createView(),
         ));
-    }
+     }
     
 
-     public function resetAction($email)
+     private function resetAction($email)
        {
          $message = \Swift_Message::newInstance()
         ->setSubject('Hello Email')
@@ -134,7 +138,7 @@ class DefaultController extends Controller
 
        }
      
-     public function SendConfirmation(User $user)
+     private function SendConfirmation(User $user)
      {
          $message = \Swift_Message::newInstance()
         ->setSubject('Activation du compte')

@@ -1,0 +1,58 @@
+security:
+    access_denied_url:    ~ # Exemple: /foo/error403
+
+    encoders:
+        Xm\UserBundle\Entity\User: bcrypt
+
+    providers:
+        main:
+            entity: {class:XmUserBundle:User,property : username}
+
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+
+    firewalls:
+         secured_area :
+           pattern: ^(/utilisateurs|/connexion_validation)
+           anonymous: false
+           logout:
+               path: /deconnexion
+               target : /
+               intention: logout
+           context : utilisateur
+
+           form_login:
+
+               login_path: xm_main_connexion
+
+               check_path: /connexion_validation
+
+               default_target_path : /
+
+               always_use_default_target_path: false
+
+               username_parameter: username
+
+               password_parameter: password
+
+               csrf_parameter: _csrf_security_token
+
+               intention: authenticate
+
+               post_only: true
+
+               provider : main
+
+         main :
+           pattern: ^/(connexion|inscription|recuperation)
+           anonymous: true
+
+         mixed_path:
+           pattern: ^(/|guide)
+           anonymous: true
+           context : utilisateur
+
+
+    access_control :
+        - { path: ^/(/|connexion|inscription|recuperation), role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: (^/utilisateurs/|/covoiturage/), role: ROLE_USER }

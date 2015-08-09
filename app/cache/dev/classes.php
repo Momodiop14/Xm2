@@ -150,7 +150,9 @@ ini_set('session.cookie_lifetime', $lifetime);
 if ($destroy) {
 $this->metadataBag->stampNew();
 }
-return session_regenerate_id($destroy);
+$isRegenerated = session_regenerate_id($destroy);
+$this->loadSession();
+return $isRegenerated;
 }
 public function save()
 {
@@ -943,7 +945,7 @@ if ($hostTokens) {
 $routeHost ='';
 foreach ($hostTokens as $token) {
 if ('variable'=== $token[0]) {
-if (null !== $this->strictRequirements && !preg_match('#^'.$token[2].'$#', $mergedParams[$token[3]])) {
+if (null !== $this->strictRequirements && !preg_match('#^'.$token[2].'$#i', $mergedParams[$token[3]])) {
 $message = sprintf('Parameter "%s" for route "%s" must match "%s" ("%s" given) to generate a corresponding URL.', $token[3], $name, $token[2], $mergedParams[$token[3]]);
 if ($this->strictRequirements) {
 throw new InvalidParameterException($message);
@@ -1625,14 +1627,13 @@ throw new \InvalidArgumentException(sprintf('The file "%s" does not exist.', $na
 }
 return $name;
 }
+$paths = $this->paths;
+if (null !== $currentPath) {
+array_unshift($paths, $currentPath);
+}
+$paths = array_unique($paths);
 $filepaths = array();
-if (null !== $currentPath && file_exists($file = $currentPath.DIRECTORY_SEPARATOR.$name)) {
-if (true === $first) {
-return $file;
-}
-$filepaths[] = $file;
-}
-foreach ($this->paths as $path) {
+foreach ($paths as $path) {
 if (file_exists($file = $path.DIRECTORY_SEPARATOR.$name)) {
 if (true === $first) {
 return $file;
@@ -1641,9 +1642,9 @@ $filepaths[] = $file;
 }
 }
 if (!$filepaths) {
-throw new \InvalidArgumentException(sprintf('The file "%s" does not exist (in: %s%s).', $name, null !== $currentPath ? $currentPath.', ':'', implode(', ', $this->paths)));
+throw new \InvalidArgumentException(sprintf('The file "%s" does not exist (in: %s).', $name, implode(', ', $paths)));
 }
-return array_values(array_unique($filepaths));
+return $filepaths;
 }
 private function isAbsolutePath($file)
 {
@@ -1731,7 +1732,7 @@ $this->sortListeners($eventName);
 }
 return $this->sorted[$eventName];
 }
-foreach (array_keys($this->listeners) as $eventName) {
+foreach ($this->listeners as $eventName => $eventListeners) {
 if (!isset($this->sorted[$eventName])) {
 $this->sortListeners($eventName);
 }
@@ -1856,7 +1857,7 @@ return parent::hasListeners($eventName);
 public function getListeners($eventName = null)
 {
 if (null === $eventName) {
-foreach (array_keys($this->listenerIds) as $serviceEventName) {
+foreach ($this->listenerIds as $serviceEventName => $args) {
 $this->lazyLoad($serviceEventName);
 }
 } else {
@@ -2006,8 +2007,7 @@ if (null !== $this->logger) {
 $this->logger->info(sprintf('Matched route "%s" (parameters: %s)', $parameters['_route'], $this->parametersToString($parameters)));
 }
 $request->attributes->add($parameters);
-unset($parameters['_route']);
-unset($parameters['_controller']);
+unset($parameters['_route'], $parameters['_controller']);
 $request->attributes->set('_route_params', $parameters);
 } catch (ResourceNotFoundException $e) {
 $message = sprintf('No route found for "%s %s"', $request->getMethod(), $request->getPathInfo());
@@ -2207,7 +2207,7 @@ $a = array();
 foreach ($var as $k => $v) {
 $a[] = sprintf('%s => %s', $k, $this->varToString($v));
 }
-return sprintf("Array(%s)", implode(', ', $a));
+return sprintf('Array(%s)', implode(', ', $a));
 }
 if (is_resource($var)) {
 return sprintf('Resource(%s)', get_resource_type($var));
@@ -2467,7 +2467,7 @@ list($class, $method) = explode('::', $controller, 2);
 if (!class_exists($class)) {
 throw new \InvalidArgumentException(sprintf('Class "%s" does not exist.', $class));
 }
-$controller = new $class();
+$controller = $this->instantiateController($class);
 if ($controller instanceof ContainerAwareInterface) {
 $controller->setContainer($this->container);
 }
@@ -2475,11 +2475,579 @@ return array($controller, $method);
 }
 }
 }
+namespace Symfony\Component\Security\Http
+{
+use Symfony\Component\HttpFoundation\Request;
+interface AccessMapInterface
+{
+public function getPatterns(Request $request);
+}
+}
+namespace Symfony\Component\Security\Http
+{
+use Symfony\Component\HttpFoundation\RequestMatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+class AccessMap implements AccessMapInterface
+{
+private $map = array();
+public function add(RequestMatcherInterface $requestMatcher, array $attributes = array(), $channel = null)
+{
+$this->map[] = array($requestMatcher, $attributes, $channel);
+}
+public function getPatterns(Request $request)
+{
+foreach ($this->map as $elements) {
+if (null === $elements[0] || $elements[0]->matches($request)) {
+return array($elements[1], $elements[2]);
+}
+}
+return array(null, null);
+}
+}
+}
+namespace Symfony\Component\Security\Http
+{
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\FinishRequestEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+class Firewall implements EventSubscriberInterface
+{
+private $map;
+private $dispatcher;
+private $exceptionListeners;
+public function __construct(FirewallMapInterface $map, EventDispatcherInterface $dispatcher)
+{
+$this->map = $map;
+$this->dispatcher = $dispatcher;
+$this->exceptionListeners = new \SplObjectStorage();
+}
+public function onKernelRequest(GetResponseEvent $event)
+{
+if (!$event->isMasterRequest()) {
+return;
+}
+list($listeners, $exceptionListener) = $this->map->getListeners($event->getRequest());
+if (null !== $exceptionListener) {
+$this->exceptionListeners[$event->getRequest()] = $exceptionListener;
+$exceptionListener->register($this->dispatcher);
+}
+foreach ($listeners as $listener) {
+$listener->handle($event);
+if ($event->hasResponse()) {
+break;
+}
+}
+}
+public function onKernelFinishRequest(FinishRequestEvent $event)
+{
+$request = $event->getRequest();
+if (isset($this->exceptionListeners[$request])) {
+$this->exceptionListeners[$request]->unregister($this->dispatcher);
+unset($this->exceptionListeners[$request]);
+}
+}
+public static function getSubscribedEvents()
+{
+return array(
+KernelEvents::REQUEST => array('onKernelRequest', 8),
+KernelEvents::FINISH_REQUEST =>'onKernelFinishRequest',
+);
+}
+}
+}
+namespace Symfony\Component\Security\Core\Authentication\Token\Storage
+{
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+interface TokenStorageInterface
+{
+public function getToken();
+public function setToken(TokenInterface $token = null);
+}
+}
+namespace Symfony\Component\Security\Core\Authorization
+{
+interface AuthorizationCheckerInterface
+{
+public function isGranted($attributes, $object = null);
+}
+}
+namespace Symfony\Component\Security\Core
+{
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+interface SecurityContextInterface extends TokenStorageInterface, AuthorizationCheckerInterface
+{
+const ACCESS_DENIED_ERROR = Security::ACCESS_DENIED_ERROR;
+const AUTHENTICATION_ERROR = Security::AUTHENTICATION_ERROR;
+const LAST_USERNAME = Security::LAST_USERNAME;
+}
+}
+namespace Symfony\Component\Security\Core
+{
+use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+class SecurityContext implements SecurityContextInterface
+{
+private $tokenStorage;
+private $authorizationChecker;
+public function __construct($tokenStorage, $authorizationChecker, $alwaysAuthenticate = false)
+{
+$oldSignature = $tokenStorage instanceof AuthenticationManagerInterface && $authorizationChecker instanceof AccessDecisionManagerInterface;
+$newSignature = $tokenStorage instanceof TokenStorageInterface && $authorizationChecker instanceof AuthorizationCheckerInterface;
+if (!$oldSignature && !$newSignature) {
+throw new \BadMethodCallException('Unable to construct SecurityContext, please provide the correct arguments');
+}
+if ($oldSignature) {
+$authenticationManager = $tokenStorage;
+$accessDecisionManager = $authorizationChecker;
+$tokenStorage = new TokenStorage();
+$authorizationChecker = new AuthorizationChecker($tokenStorage, $authenticationManager, $accessDecisionManager, $alwaysAuthenticate);
+}
+$this->tokenStorage = $tokenStorage;
+$this->authorizationChecker = $authorizationChecker;
+}
+public function getToken()
+{
+return $this->tokenStorage->getToken();
+}
+public function setToken(TokenInterface $token = null)
+{
+return $this->tokenStorage->setToken($token);
+}
+public function isGranted($attributes, $object = null)
+{
+return $this->authorizationChecker->isGranted($attributes, $object);
+}
+}
+}
+namespace Symfony\Component\Security\Core\User
+{
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+interface UserProviderInterface
+{
+public function loadUserByUsername($username);
+public function refreshUser(UserInterface $user);
+public function supportsClass($class);
+}
+}
+namespace Symfony\Component\Security\Core\Authentication
+{
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+interface AuthenticationManagerInterface
+{
+public function authenticate(TokenInterface $token);
+}
+}
+namespace Symfony\Component\Security\Core\Authentication
+{
+use Symfony\Component\Security\Core\Event\AuthenticationFailureEvent;
+use Symfony\Component\Security\Core\Event\AuthenticationEvent;
+use Symfony\Component\Security\Core\AuthenticationEvents;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Security\Core\Exception\AccountStatusException;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\ProviderNotFoundException;
+use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+class AuthenticationProviderManager implements AuthenticationManagerInterface
+{
+private $providers;
+private $eraseCredentials;
+private $eventDispatcher;
+public function __construct(array $providers, $eraseCredentials = true)
+{
+if (!$providers) {
+throw new \InvalidArgumentException('You must at least add one authentication provider.');
+}
+$this->providers = $providers;
+$this->eraseCredentials = (bool) $eraseCredentials;
+}
+public function setEventDispatcher(EventDispatcherInterface $dispatcher)
+{
+$this->eventDispatcher = $dispatcher;
+}
+public function authenticate(TokenInterface $token)
+{
+$lastException = null;
+$result = null;
+foreach ($this->providers as $provider) {
+if (!$provider->supports($token)) {
+continue;
+}
+try {
+$result = $provider->authenticate($token);
+if (null !== $result) {
+break;
+}
+} catch (AccountStatusException $e) {
+$e->setToken($token);
+throw $e;
+} catch (AuthenticationException $e) {
+$lastException = $e;
+}
+}
+if (null !== $result) {
+if (true === $this->eraseCredentials) {
+$result->eraseCredentials();
+}
+if (null !== $this->eventDispatcher) {
+$this->eventDispatcher->dispatch(AuthenticationEvents::AUTHENTICATION_SUCCESS, new AuthenticationEvent($result));
+}
+return $result;
+}
+if (null === $lastException) {
+$lastException = new ProviderNotFoundException(sprintf('No Authentication Provider found for token of class "%s".', get_class($token)));
+}
+if (null !== $this->eventDispatcher) {
+$this->eventDispatcher->dispatch(AuthenticationEvents::AUTHENTICATION_FAILURE, new AuthenticationFailureEvent($token, $lastException));
+}
+$lastException->setToken($token);
+throw $lastException;
+}
+}
+}
+namespace Symfony\Component\Security\Core\Authentication\Token\Storage
+{
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+class TokenStorage implements TokenStorageInterface
+{
+private $token;
+public function getToken()
+{
+return $this->token;
+}
+public function setToken(TokenInterface $token = null)
+{
+$this->token = $token;
+}
+}
+}
+namespace Symfony\Component\Security\Core\Authorization
+{
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+interface AccessDecisionManagerInterface
+{
+public function decide(TokenInterface $token, array $attributes, $object = null);
+public function supportsAttribute($attribute);
+public function supportsClass($class);
+}
+}
+namespace Symfony\Component\Security\Core\Authorization
+{
+use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+class AccessDecisionManager implements AccessDecisionManagerInterface
+{
+const STRATEGY_AFFIRMATIVE ='affirmative';
+const STRATEGY_CONSENSUS ='consensus';
+const STRATEGY_UNANIMOUS ='unanimous';
+private $voters;
+private $strategy;
+private $allowIfAllAbstainDecisions;
+private $allowIfEqualGrantedDeniedDecisions;
+public function __construct(array $voters, $strategy = self::STRATEGY_AFFIRMATIVE, $allowIfAllAbstainDecisions = false, $allowIfEqualGrantedDeniedDecisions = true)
+{
+if (!$voters) {
+throw new \InvalidArgumentException('You must at least add one voter.');
+}
+$strategyMethod ='decide'.ucfirst($strategy);
+if (!is_callable(array($this, $strategyMethod))) {
+throw new \InvalidArgumentException(sprintf('The strategy "%s" is not supported.', $strategy));
+}
+$this->voters = $voters;
+$this->strategy = $strategyMethod;
+$this->allowIfAllAbstainDecisions = (bool) $allowIfAllAbstainDecisions;
+$this->allowIfEqualGrantedDeniedDecisions = (bool) $allowIfEqualGrantedDeniedDecisions;
+}
+public function decide(TokenInterface $token, array $attributes, $object = null)
+{
+return $this->{$this->strategy}($token, $attributes, $object);
+}
+public function supportsAttribute($attribute)
+{
+foreach ($this->voters as $voter) {
+if ($voter->supportsAttribute($attribute)) {
+return true;
+}
+}
+return false;
+}
+public function supportsClass($class)
+{
+foreach ($this->voters as $voter) {
+if ($voter->supportsClass($class)) {
+return true;
+}
+}
+return false;
+}
+private function decideAffirmative(TokenInterface $token, array $attributes, $object = null)
+{
+$deny = 0;
+foreach ($this->voters as $voter) {
+$result = $voter->vote($token, $object, $attributes);
+switch ($result) {
+case VoterInterface::ACCESS_GRANTED:
+return true;
+case VoterInterface::ACCESS_DENIED:
+++$deny;
+break;
+default:
+break;
+}
+}
+if ($deny > 0) {
+return false;
+}
+return $this->allowIfAllAbstainDecisions;
+}
+private function decideConsensus(TokenInterface $token, array $attributes, $object = null)
+{
+$grant = 0;
+$deny = 0;
+$abstain = 0;
+foreach ($this->voters as $voter) {
+$result = $voter->vote($token, $object, $attributes);
+switch ($result) {
+case VoterInterface::ACCESS_GRANTED:
+++$grant;
+break;
+case VoterInterface::ACCESS_DENIED:
+++$deny;
+break;
+default:
+++$abstain;
+break;
+}
+}
+if ($grant > $deny) {
+return true;
+}
+if ($deny > $grant) {
+return false;
+}
+if ($grant == $deny && $grant != 0) {
+return $this->allowIfEqualGrantedDeniedDecisions;
+}
+return $this->allowIfAllAbstainDecisions;
+}
+private function decideUnanimous(TokenInterface $token, array $attributes, $object = null)
+{
+$grant = 0;
+foreach ($attributes as $attribute) {
+foreach ($this->voters as $voter) {
+$result = $voter->vote($token, $object, array($attribute));
+switch ($result) {
+case VoterInterface::ACCESS_GRANTED:
+++$grant;
+break;
+case VoterInterface::ACCESS_DENIED:
+return false;
+default:
+break;
+}
+}
+}
+if ($grant > 0) {
+return true;
+}
+return $this->allowIfAllAbstainDecisions;
+}
+}
+}
+namespace Symfony\Component\Security\Core\Authorization
+{
+use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
+class AuthorizationChecker implements AuthorizationCheckerInterface
+{
+private $tokenStorage;
+private $accessDecisionManager;
+private $authenticationManager;
+private $alwaysAuthenticate;
+public function __construct(TokenStorageInterface $tokenStorage, AuthenticationManagerInterface $authenticationManager, AccessDecisionManagerInterface $accessDecisionManager, $alwaysAuthenticate = false)
+{
+$this->tokenStorage = $tokenStorage;
+$this->authenticationManager = $authenticationManager;
+$this->accessDecisionManager = $accessDecisionManager;
+$this->alwaysAuthenticate = $alwaysAuthenticate;
+}
+final public function isGranted($attributes, $object = null)
+{
+if (null === ($token = $this->tokenStorage->getToken())) {
+throw new AuthenticationCredentialsNotFoundException('The token storage contains no authentication token. One possible reason may be that there is no firewall configured for this URL.');
+}
+if ($this->alwaysAuthenticate || !$token->isAuthenticated()) {
+$this->tokenStorage->setToken($token = $this->authenticationManager->authenticate($token));
+}
+if (!is_array($attributes)) {
+$attributes = array($attributes);
+}
+return $this->accessDecisionManager->decide($token, $attributes, $object);
+}
+}
+}
+namespace Symfony\Component\Security\Core\Authorization\Voter
+{
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+interface VoterInterface
+{
+const ACCESS_GRANTED = 1;
+const ACCESS_ABSTAIN = 0;
+const ACCESS_DENIED = -1;
+public function supportsAttribute($attribute);
+public function supportsClass($class);
+public function vote(TokenInterface $token, $object, array $attributes);
+}
+}
+namespace Symfony\Component\Security\Http
+{
+use Symfony\Component\HttpFoundation\Request;
+interface FirewallMapInterface
+{
+public function getListeners(Request $request);
+}
+}
+namespace Symfony\Bundle\SecurityBundle\Security
+{
+use Symfony\Component\Security\Http\FirewallMapInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+class FirewallMap implements FirewallMapInterface
+{
+protected $container;
+protected $map;
+public function __construct(ContainerInterface $container, array $map)
+{
+$this->container = $container;
+$this->map = $map;
+}
+public function getListeners(Request $request)
+{
+foreach ($this->map as $contextId => $requestMatcher) {
+if (null === $requestMatcher || $requestMatcher->matches($request)) {
+return $this->container->get($contextId)->getContext();
+}
+}
+return array(array(), null);
+}
+}
+}
+namespace Symfony\Bundle\SecurityBundle\Security
+{
+use Symfony\Component\Security\Http\Firewall\ExceptionListener;
+class FirewallContext
+{
+private $listeners;
+private $exceptionListener;
+public function __construct(array $listeners, ExceptionListener $exceptionListener = null)
+{
+$this->listeners = $listeners;
+$this->exceptionListener = $exceptionListener;
+}
+public function getContext()
+{
+return array($this->listeners, $this->exceptionListener);
+}
+}
+}
+namespace Symfony\Component\HttpFoundation
+{
+interface RequestMatcherInterface
+{
+public function matches(Request $request);
+}
+}
+namespace Symfony\Component\HttpFoundation
+{
+class RequestMatcher implements RequestMatcherInterface
+{
+private $path;
+private $host;
+private $methods = array();
+private $ips = array();
+private $attributes = array();
+private $schemes = array();
+public function __construct($path = null, $host = null, $methods = null, $ips = null, array $attributes = array(), $schemes = null)
+{
+$this->matchPath($path);
+$this->matchHost($host);
+$this->matchMethod($methods);
+$this->matchIps($ips);
+$this->matchScheme($schemes);
+foreach ($attributes as $k => $v) {
+$this->matchAttribute($k, $v);
+}
+}
+public function matchScheme($scheme)
+{
+$this->schemes = array_map('strtolower', (array) $scheme);
+}
+public function matchHost($regexp)
+{
+$this->host = $regexp;
+}
+public function matchPath($regexp)
+{
+$this->path = $regexp;
+}
+public function matchIp($ip)
+{
+$this->matchIps($ip);
+}
+public function matchIps($ips)
+{
+$this->ips = (array) $ips;
+}
+public function matchMethod($method)
+{
+$this->methods = array_map('strtoupper', (array) $method);
+}
+public function matchAttribute($key, $regexp)
+{
+$this->attributes[$key] = $regexp;
+}
+public function matches(Request $request)
+{
+if ($this->schemes && !in_array($request->getScheme(), $this->schemes)) {
+return false;
+}
+if ($this->methods && !in_array($request->getMethod(), $this->methods)) {
+return false;
+}
+foreach ($this->attributes as $key => $pattern) {
+if (!preg_match('{'.$pattern.'}', $request->attributes->get($key))) {
+return false;
+}
+}
+if (null !== $this->path && !preg_match('{'.$this->path.'}', rawurldecode($request->getPathInfo()))) {
+return false;
+}
+if (null !== $this->host && !preg_match('{'.$this->host.'}i', $request->getHost())) {
+return false;
+}
+if (IpUtils::checkIp($request->getClientIp(), $this->ips)) {
+return true;
+}
+return count($this->ips) === 0;
+}
+}
+}
 namespace
 {
 class Twig_Environment
 {
-const VERSION ='1.18.0';
+const VERSION ='1.19.0';
 protected $charset;
 protected $loader;
 protected $debug;
@@ -2586,7 +3154,7 @@ if (false === $this->cache) {
 return false;
 }
 $class = substr($this->getTemplateClass($name), strlen($this->templateClassPrefix));
-return $this->getCache().'/'.substr($class, 0, 2).'/'.substr($class, 2, 2).'/'.substr($class, 4).'.php';
+return $this->getCache().'/'.$class[0].'/'.$class[1].'/'.$class.'.php';
 }
 public function getTemplateClass($name, $index = null)
 {
@@ -3117,11 +3685,11 @@ if (!is_dir($dir)) {
 if (false === @mkdir($dir, 0777, true)) {
 clearstatcache(false, $dir);
 if (!is_dir($dir)) {
-throw new RuntimeException(sprintf("Unable to create the cache directory (%s).", $dir));
+throw new RuntimeException(sprintf('Unable to create the cache directory (%s).', $dir));
 }
 }
 } elseif (!is_writable($dir)) {
-throw new RuntimeException(sprintf("Unable to write in the cache directory (%s).", $dir));
+throw new RuntimeException(sprintf('Unable to write in the cache directory (%s).', $dir));
 }
 $tmpFile = tempnam($dir, basename($file));
 if (false !== @file_put_contents($tmpFile, $content)) {
@@ -3512,7 +4080,7 @@ return http_build_query($url,'','&');
 }
 return rawurlencode($url);
 }
-if (version_compare(PHP_VERSION,'5.3.0','<')) {
+if (PHP_VERSION_ID < 50300) {
 function twig_jsonencode_filter($value, $options = 0)
 {
 if ($value instanceof Twig_Markup) {
@@ -3552,7 +4120,7 @@ if ($item instanceof Traversable) {
 if ($item instanceof IteratorAggregate) {
 $item = $item->getIterator();
 }
-if ($start >= 0 && $length >= 0) {
+if ($start >= 0 && $length >= 0 && $item instanceof Iterator) {
 try {
 return iterator_to_array(new LimitIterator($item, $start, $length === null ? -1 : $length), $preserveKeys);
 } catch (OutOfBoundsException $exception) {
@@ -3736,7 +4304,7 @@ $string = twig_convert_encoding($string, $charset,'UTF-8');
 }
 return $string;
 case'url':
-if (PHP_VERSION <'5.3.0') {
+if (PHP_VERSION_ID < 50300) {
 return str_replace('%7E','~', rawurlencode($string));
 }
 return rawurlencode($string);
@@ -3905,20 +4473,31 @@ if (!$alreadySandboxed = $sandbox->isSandboxed()) {
 $sandbox->enableSandbox();
 }
 }
+$result = null;
 try {
-return $env->resolveTemplate($template)->render($variables);
+$result = $env->resolveTemplate($template)->render($variables);
 } catch (Twig_Error_Loader $e) {
 if (!$ignoreMissing) {
+if ($isSandboxed && !$alreadySandboxed) {
+$sandbox->disableSandbox();
+}
 throw $e;
 }
 }
 if ($isSandboxed && !$alreadySandboxed) {
 $sandbox->disableSandbox();
 }
+return $result;
 }
-function twig_source(Twig_Environment $env, $name)
+function twig_source(Twig_Environment $env, $name, $ignoreMissing = false)
 {
+try {
 return $env->getLoader()->getSource($name);
+} catch (Twig_Error_Loader $e) {
+if (!$ignoreMissing) {
+throw $e;
+}
+}
 }
 function twig_constant($constant, $object = null)
 {
@@ -3934,7 +4513,7 @@ $items = iterator_to_array($items, false);
 }
 $size = ceil($size);
 $result = array_chunk($items, $size, true);
-if (null !== $fill) {
+if (null !== $fill && !empty($result)) {
 $last = count($result) - 1;
 if ($fillCount = $size - count($result[$last])) {
 $result[$last] = array_merge(
@@ -4088,11 +4667,11 @@ $parent = $this->doGetParent($context);
 if (false === $parent) {
 return false;
 }
-if ($parent instanceof Twig_Template) {
+if ($parent instanceof self) {
 return $this->parents[$parent->getTemplateName()] = $parent;
 }
 if (!isset($this->parents[$parent])) {
-$this->parents[$parent] = $this->env->loadTemplate($parent);
+$this->parents[$parent] = $this->loadTemplate($parent);
 }
 } catch (Twig_Error_Loader $e) {
 $e->setTemplateFile(null);
@@ -4137,6 +4716,13 @@ if (null !== $template) {
 try {
 $template->$block($context, $blocks);
 } catch (Twig_Error $e) {
+if (!$e->getTemplateFile()) {
+$e->setTemplateFile($template->getTemplateName());
+}
+if (false === $e->getTemplateLine()) {
+$e->setTemplateLine(-1);
+$e->guess();
+}
 throw $e;
 } catch (Exception $e) {
 throw new Twig_Error_Runtime(sprintf('An exception has been thrown during the rendering of a template ("%s").', $e->getMessage()), -1, $template->getTemplateName(), $e);
@@ -4164,6 +4750,31 @@ return isset($this->blocks[(string) $name]);
 public function getBlockNames()
 {
 return array_keys($this->blocks);
+}
+protected function loadTemplate($template, $templateName = null, $line = null, $index = null)
+{
+try {
+if (is_array($template)) {
+return $this->env->resolveTemplate($template);
+}
+if ($template instanceof self) {
+return $template;
+}
+return $this->env->loadTemplate($template, $index);
+} catch (Twig_Error $e) {
+if (!$e->getTemplateFile()) {
+$e->setTemplateFile($templateName ? $templateName : $this->getTemplateName());
+}
+if ($e->getTemplateLine()) {
+throw $e;
+}
+if (!$line) {
+$e->guess();
+} else {
+$e->setTemplateLine($line);
+}
+throw $e;
+}
 }
 public function getBlocks()
 {
@@ -4215,9 +4826,9 @@ throw new Twig_Error_Runtime(sprintf('Variable "%s" does not exist', $item), -1,
 }
 return $context[$item];
 }
-protected function getAttribute($object, $item, array $arguments = array(), $type = Twig_Template::ANY_CALL, $isDefinedTest = false, $ignoreStrictCheck = false)
+protected function getAttribute($object, $item, array $arguments = array(), $type = self::ANY_CALL, $isDefinedTest = false, $ignoreStrictCheck = false)
 {
-if (Twig_Template::METHOD_CALL !== $type) {
+if (self::METHOD_CALL !== $type) {
 $arrayItem = is_bool($item) || is_float($item) ? (int) $item : $item;
 if ((is_array($object) && array_key_exists($arrayItem, $object))
 || ($object instanceof ArrayAccess && isset($object[$arrayItem]))
@@ -4227,7 +4838,7 @@ return true;
 }
 return $object[$arrayItem];
 }
-if (Twig_Template::ARRAY_CALL === $type || !is_object($object)) {
+if (self::ARRAY_CALL === $type || !is_object($object)) {
 if ($isDefinedTest) {
 return false;
 }
@@ -4244,8 +4855,14 @@ $message = sprintf('Key "%s" does not exist as the array is empty', $arrayItem);
 } else {
 $message = sprintf('Key "%s" for array with keys "%s" does not exist', $arrayItem, implode(', ', array_keys($object)));
 }
-} elseif (Twig_Template::ARRAY_CALL === $type) {
+} elseif (self::ARRAY_CALL === $type) {
+if (null === $object) {
+$message = sprintf('Impossible to access a key ("%s") on a null variable', $item);
+} else {
 $message = sprintf('Impossible to access a key ("%s") on a %s variable ("%s")', $item, gettype($object), $object);
+}
+} elseif (null === $object) {
+$message = sprintf('Impossible to access an attribute ("%s") on a null variable', $item);
 } else {
 $message = sprintf('Impossible to access an attribute ("%s") on a %s variable ("%s")', $item, gettype($object), $object);
 }
@@ -4259,9 +4876,14 @@ return false;
 if ($ignoreStrictCheck || !$this->env->isStrictVariables()) {
 return;
 }
-throw new Twig_Error_Runtime(sprintf('Impossible to invoke a method ("%s") on a %s variable ("%s")', $item, gettype($object), $object), -1, $this->getTemplateName());
+if (null === $object) {
+$message = sprintf('Impossible to invoke a method ("%s") on a null variable', $item);
+} else {
+$message = sprintf('Impossible to invoke a method ("%s") on a %s variable ("%s")', $item, gettype($object), $object);
 }
-if (Twig_Template::METHOD_CALL !== $type) {
+throw new Twig_Error_Runtime($message, -1, $this->getTemplateName());
+}
+if (self::METHOD_CALL !== $type) {
 if (isset($object->$item) || array_key_exists((string) $item, $object)) {
 if ($isDefinedTest) {
 return true;
@@ -4382,7 +5004,12 @@ if (is_object($data)) {
 if ($data instanceof Exception) {
 return $this->normalizeException($data);
 }
-return sprintf("[object] (%s: %s)", get_class($data), $this->toJson($data, true));
+if (method_exists($data,'__toString') && !$data instanceof \JsonSerializable) {
+$value = (string) $data;
+} else {
+$value = $this->toJson($data, true);
+}
+return sprintf("[object] (%s: %s)", get_class($data), $value);
 }
 if (is_resource($data)) {
 return'[resource]';
@@ -4415,9 +5042,34 @@ return @json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 return @json_encode($data);
 }
 if (version_compare(PHP_VERSION,'5.4.0','>=')) {
-return json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+$json = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+} else {
+$json = json_encode($data);
 }
-return json_encode($data);
+if ($json === false) {
+$this->throwEncodeError(json_last_error(), $data);
+}
+return $json;
+}
+private function throwEncodeError($code, $data)
+{
+switch ($code) {
+case JSON_ERROR_DEPTH:
+$msg ='Maximum stack depth exceeded';
+break;
+case JSON_ERROR_STATE_MISMATCH:
+$msg ='Underflow or the modes mismatch';
+break;
+case JSON_ERROR_CTRL_CHAR:
+$msg ='Unexpected control character found';
+break;
+case JSON_ERROR_UTF8:
+$msg ='Malformed UTF-8 characters, possibly incorrectly encoded';
+break;
+default:
+$msg ='Unknown error';
+}
+throw new \RuntimeException('JSON encoding failed: '.$msg.'. Encoding: '.var_export($data, true));
 }
 }
 }
@@ -4524,7 +5176,7 @@ protected function replaceNewlines($str)
 if ($this->allowInlineLineBreaks) {
 return $str;
 }
-return strtr($str, array("\r\n"=>' ',"\r"=>' ',"\n"=>' '));
+return str_replace(array("\r\n","\r","\n"),' ', $str);
 }
 }
 }
@@ -4671,6 +5323,16 @@ parent::__construct($level, $bubble);
 if (is_resource($stream)) {
 $this->stream = $stream;
 } elseif (is_string($stream)) {
+$dir = $this->getDirFromStream($stream);
+if (null !== $dir && !is_dir($dir)) {
+$this->errorMessage = null;
+set_error_handler(array($this,'customErrorHandler'));
+$status = mkdir($dir, 0777, true);
+restore_error_handler();
+if (false === $status) {
+throw new \UnexpectedValueException(sprintf('There is no existing directory at "%s" and its not buildable: '.$this->errorMessage, $dir));
+}
+}
 $this->url = $stream;
 } else {
 throw new \InvalidArgumentException('A stream must either be a resource or a string.');
@@ -4713,7 +5375,18 @@ flock($this->stream, LOCK_UN);
 }
 private function customErrorHandler($code, $msg)
 {
-$this->errorMessage = preg_replace('{^fopen\(.*?\): }','', $msg);
+$this->errorMessage = preg_replace('{^(fopen|mkdir)\(.*?\): }','', $msg);
+}
+private function getDirFromStream($stream)
+{
+$pos = strpos($stream,'://');
+if ($pos === false) {
+return dirname($stream);
+}
+if ('file://'=== substr($stream, 0, 7)) {
+return dirname(substr($stream, 7));
+}
+return;
 }
 }
 }
@@ -4744,7 +5417,9 @@ $this->activationStrategy = $activationStrategy;
 $this->bufferSize = $bufferSize;
 $this->bubble = $bubble;
 $this->stopBuffering = $stopBuffering;
-$this->passthruLevel = $passthruLevel;
+if ($passthruLevel !== null) {
+$this->passthruLevel = Logger::toMonologLevel($passthruLevel);
+}
 if (!$this->handler instanceof HandlerInterface && !is_callable($this->handler)) {
 throw new \RuntimeException("The given handler (".json_encode($this->handler).") is not a callable nor a Monolog\Handler\HandlerInterface object");
 }
@@ -4887,80 +5562,41 @@ public function getRecords()
 {
 return $this->records;
 }
-public function hasEmergency($record)
+protected function hasRecordRecords($level)
 {
-return $this->hasRecord($record, Logger::EMERGENCY);
-}
-public function hasAlert($record)
-{
-return $this->hasRecord($record, Logger::ALERT);
-}
-public function hasCritical($record)
-{
-return $this->hasRecord($record, Logger::CRITICAL);
-}
-public function hasError($record)
-{
-return $this->hasRecord($record, Logger::ERROR);
-}
-public function hasWarning($record)
-{
-return $this->hasRecord($record, Logger::WARNING);
-}
-public function hasNotice($record)
-{
-return $this->hasRecord($record, Logger::NOTICE);
-}
-public function hasInfo($record)
-{
-return $this->hasRecord($record, Logger::INFO);
-}
-public function hasDebug($record)
-{
-return $this->hasRecord($record, Logger::DEBUG);
-}
-public function hasEmergencyRecords()
-{
-return isset($this->recordsByLevel[Logger::EMERGENCY]);
-}
-public function hasAlertRecords()
-{
-return isset($this->recordsByLevel[Logger::ALERT]);
-}
-public function hasCriticalRecords()
-{
-return isset($this->recordsByLevel[Logger::CRITICAL]);
-}
-public function hasErrorRecords()
-{
-return isset($this->recordsByLevel[Logger::ERROR]);
-}
-public function hasWarningRecords()
-{
-return isset($this->recordsByLevel[Logger::WARNING]);
-}
-public function hasNoticeRecords()
-{
-return isset($this->recordsByLevel[Logger::NOTICE]);
-}
-public function hasInfoRecords()
-{
-return isset($this->recordsByLevel[Logger::INFO]);
-}
-public function hasDebugRecords()
-{
-return isset($this->recordsByLevel[Logger::DEBUG]);
+return isset($this->recordsByLevel[$level]);
 }
 protected function hasRecord($record, $level)
 {
-if (!isset($this->recordsByLevel[$level])) {
-return false;
-}
 if (is_array($record)) {
 $record = $record['message'];
 }
-foreach ($this->recordsByLevel[$level] as $rec) {
-if ($rec['message'] === $record) {
+return $this->hasRecordThatPasses(function($rec) use ($record) {
+return $rec['message'] === $record;
+}, $level);
+}
+public function hasRecordThatContains($message, $level)
+{
+return $this->hasRecordThatPasses(function($rec) use ($message) {
+return strpos($rec['message'], $message) !== false;
+}, $level);
+}
+public function hasRecordThatMatches($regex, $level)
+{
+return $this->hasRecordThatPasses(function($rec) use ($regex) {
+return preg_match($regex, $rec['message']) > 0;
+}, $level);
+}
+public function hasRecordThatPasses($predicate, $level)
+{
+if (!is_callable($predicate)) {
+throw new \InvalidArgumentException("Expected a callable for hasRecordThatSucceeds");
+}
+if (!isset($this->recordsByLevel[$level])) {
+return false;
+}
+foreach ($this->recordsByLevel[$level] as $i => $rec) {
+if (call_user_func($predicate, $rec, $i)) {
 return true;
 }
 }
@@ -4970,6 +5606,18 @@ protected function write(array $record)
 {
 $this->recordsByLevel[$record['level']][] = $record;
 $this->records[] = $record;
+}
+public function __call($method, $args)
+{
+if (preg_match('/(.*)(Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)(.*)/', $method, $matches) > 0) {
+$genericMethod = $matches[1] .'Record'. $matches[3];
+$level = constant('Monolog\Logger::'. strtoupper($matches[2]));
+if (method_exists($this, $genericMethod)) {
+$args[] = $level;
+return call_user_func_array(array($this, $genericMethod), $args);
+}
+}
+throw new \BadMethodCallException('Call to undefined method '. get_class($this) .'::'. $method .'()');
 }
 }
 }
@@ -5032,6 +5680,7 @@ return $this->name;
 public function pushHandler(HandlerInterface $handler)
 {
 array_unshift($this->handlers, $handler);
+return $this;
 }
 public function popHandler()
 {
@@ -5050,6 +5699,7 @@ if (!is_callable($callback)) {
 throw new \InvalidArgumentException('Processors must be valid callables (callback or object with an __invoke method), '.var_export($callback, true).' given');
 }
 array_unshift($this->processors, $callback);
+return $this;
 }
 public function popProcessor()
 {
@@ -5155,9 +5805,7 @@ return false;
 }
 public function log($level, $message, array $context = array())
 {
-if (is_string($level) && defined(__CLASS__.'::'.strtoupper($level))) {
-$level = constant(__CLASS__.'::'.strtoupper($level));
-}
+$level = static::toMonologLevel($level);
 return $this->addRecord($level, $message, $context);
 }
 public function debug($message, array $context = array())
@@ -5207,6 +5855,10 @@ return $this->addRecord(static::EMERGENCY, $message, $context);
 public function emergency($message, array $context = array())
 {
 return $this->addRecord(static::EMERGENCY, $message, $context);
+}
+public static function setTimezone(\DateTimeZone $tz)
+{
+self::$timezone = $tz;
 }
 }
 }
@@ -5949,10 +6601,10 @@ if (false === $written) {
 throw new \RuntimeException(sprintf('Unable to write cached file to: %s', $tempfile));
 }
 if (false === rename($tempfile, $path)) {
+@unlink($tempfile);
 throw new \RuntimeException(sprintf('Unable to rename %s to %s', $tempfile, $path));
 }
 @chmod($path, 0666 & ~umask());
-@unlink($tempfile);
 }
 public function getClassAnnotation(\ReflectionClass $class, $annotationName)
 {
@@ -6123,7 +6775,6 @@ public function getEntityManagerForClass($class);
 }
 namespace Doctrine\Common\Persistence
 {
-use Doctrine\Common\Persistence\ManagerRegistry;
 abstract class AbstractManagerRegistry implements ManagerRegistry
 {
 private $name;
@@ -6190,7 +6841,7 @@ return $this->getService($this->managers[$name]);
 public function getManagerForClass($class)
 {
 if (strpos($class,':') !== false) {
-list($namespaceAlias, $simpleClassName) = explode(':', $class);
+list($namespaceAlias, $simpleClassName) = explode(':', $class, 2);
 $class = $this->getAliasNamespace($namespaceAlias) .'\\'. $simpleClassName;
 }
 $proxyClass = new \ReflectionClass($class);
@@ -6369,8 +7020,10 @@ foreach ($annotations as $configuration) {
 if ($configuration instanceof ConfigurationInterface) {
 if ($configuration->allowArray()) {
 $configurations['_'.$configuration->getAliasName()][] = $configuration;
-} else {
+} elseif (!isset($configurations['_'.$configuration->getAliasName()])) {
 $configurations['_'.$configuration->getAliasName()] = $configuration;
+} else {
+throw new \LogicException(sprintf('Multiple "%s" annotations are not allowed.', $configuration->getAliasName()));
 }
 }
 }
@@ -6498,7 +7151,7 @@ public function supports(ParamConverter $configuration)
 if (null === $configuration->getClass()) {
 return false;
 }
-return"DateTime"=== $configuration->getClass();
+return'DateTime'=== $configuration->getClass();
 }
 }
 }
@@ -6556,7 +7209,7 @@ $method ='find';
 try {
 return $this->getManager($options['entity_manager'], $class)->getRepository($class)->$method($id);
 } catch (NoResultException $e) {
-return null;
+return;
 }
 }
 protected function getIdentifier(Request $request, $options, $name)
@@ -6598,8 +7251,13 @@ return false;
 $criteria = array();
 $em = $this->getManager($options['entity_manager'], $class);
 $metadata = $em->getClassMetadata($class);
+$mapMethodSignature = isset($options['repository_method'])
+&& isset($options['map_method_signature'])
+&& $options['map_method_signature'] === true;
 foreach ($options['mapping'] as $attribute => $field) {
-if ($metadata->hasField($field) || ($metadata->hasAssociation($field) && $metadata->isSingleValuedAssociation($field))) {
+if ($metadata->hasField($field)
+|| ($metadata->hasAssociation($field) && $metadata->isSingleValuedAssociation($field))
+|| $mapMethodSignature) {
 $criteria[$field] = $request->attributes->get($attribute);
 }
 }
@@ -6610,15 +7268,34 @@ if (!$criteria) {
 return false;
 }
 if (isset($options['repository_method'])) {
-$method = $options['repository_method'];
+$repositoryMethod = $options['repository_method'];
 } else {
-$method ='findOneBy';
+$repositoryMethod ='findOneBy';
 }
 try {
-return $em->getRepository($class)->$method($criteria);
-} catch (NoResultException $e) {
-return null;
+if ($mapMethodSignature) {
+return $this->findDataByMapMethodSignature($em, $class, $repositoryMethod, $criteria);
 }
+return $em->getRepository($class)->$repositoryMethod($criteria);
+} catch (NoResultException $e) {
+return;
+}
+}
+private function findDataByMapMethodSignature($em, $class, $repositoryMethod, $criteria)
+{
+$arguments = array();
+$repository = $em->getRepository($class);
+$ref = new \ReflectionMethod($repository, $repositoryMethod);
+foreach ($ref->getParameters() as $parameter) {
+if (array_key_exists($parameter->name, $criteria)) {
+$arguments[] = $criteria[$parameter->name];
+} elseif ($parameter->isDefaultValueAvailable()) {
+$arguments[] = $parameter->getDefaultValue();
+} else {
+throw new \InvalidArgumentException(sprintf('Repository method "%s::%s" requires that you provide a value for the "$%s" argument.', get_class($repository), $repositoryMethod, $parameter->name));
+}
+}
+return $ref->invokeArgs($repository, $arguments);
 }
 public function supports(ParamConverter $configuration)
 {
@@ -6633,7 +7310,7 @@ $em = $this->getManager($options['entity_manager'], $configuration->getClass());
 if (null === $em) {
 return false;
 }
-return ! $em->getMetadataFactory()->isTransient($configuration->getClass());
+return !$em->getMetadataFactory()->isTransient($configuration->getClass());
 }
 protected function getOptions(ParamConverter $configuration)
 {
@@ -6764,7 +7441,6 @@ public function onKernelView(GetResponseForControllerResultEvent $event)
 {
 $request = $event->getRequest();
 $parameters = $event->getControllerResult();
-$templating = $this->container->get('templating');
 if (null === $parameters) {
 if (!$vars = $request->attributes->get('_template_vars')) {
 if (!$vars = $request->attributes->get('_template_default_vars')) {
@@ -6782,6 +7458,7 @@ return $parameters;
 if (!$template = $request->attributes->get('_template')) {
 return $parameters;
 }
+$templating = $this->container->get('templating');
 if (!$request->attributes->get('_template_streamable')) {
 $event->setResponse($templating->renderResponse($template, $parameters));
 } else {
@@ -6883,6 +7560,9 @@ $response->setVary($configuration->getVary());
 if ($configuration->isPublic()) {
 $response->setPublic();
 }
+if ($configuration->isPrivate()) {
+$response->setPrivate();
+}
 if (isset($this->lastModifiedDates[$request])) {
 $response->setLastModified($this->lastModifiedDates[$request]);
 unset($this->lastModifiedDates[$request]);
@@ -6920,18 +7600,22 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authentication\AuthenticationTrustResolverInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 class SecurityListener implements EventSubscriberInterface
 {
-private $securityContext;
+private $tokenStorage;
+private $authChecker;
 private $language;
 private $trustResolver;
 private $roleHierarchy;
-public function __construct(SecurityContextInterface $securityContext = null, ExpressionLanguage $language = null, AuthenticationTrustResolverInterface $trustResolver = null, RoleHierarchyInterface $roleHierarchy = null)
+public function __construct(SecurityContextInterface $securityContext = null, ExpressionLanguage $language = null, AuthenticationTrustResolverInterface $trustResolver = null, RoleHierarchyInterface $roleHierarchy = null, TokenStorageInterface $tokenStorage = null, AuthorizationCheckerInterface $authChecker = null)
 {
-$this->securityContext = $securityContext;
+$this->tokenStorage = $tokenStorage ?: $securityContext;
+$this->authChecker = $authChecker ?: $securityContext;
 $this->language = $language;
 $this->trustResolver = $trustResolver;
 $this->roleHierarchy = $roleHierarchy;
@@ -6942,8 +7626,11 @@ $request = $event->getRequest();
 if (!$configuration = $request->attributes->get('_security')) {
 return;
 }
-if (null === $this->securityContext || null === $this->trustResolver) {
+if (null === $this->tokenStorage || null === $this->trustResolver) {
 throw new \LogicException('To use the @Security tag, you need to install the Symfony Security bundle.');
+}
+if (null === $this->tokenStorage->getToken()) {
+throw new \LogicException('To use the @Security tag, your controller needs to be behind a firewall.');
 }
 if (null === $this->language) {
 throw new \LogicException('To use the @Security tag, you need to use the Security component 2.4 or newer and to install the ExpressionLanguage component.');
@@ -6954,13 +7641,13 @@ throw new AccessDeniedException(sprintf('Expression "%s" denied access.', $confi
 }
 private function getVariables(Request $request)
 {
-$token = $this->securityContext->getToken();
+$token = $this->tokenStorage->getToken();
 if (null !== $this->roleHierarchy) {
 $roles = $this->roleHierarchy->getReachableRoles($token->getRoles());
 } else {
 $roles = $token->getRoles();
 }
-$variables = array('token'=> $token,'user'=> $token->getUser(),'object'=> $request,'request'=> $request,'roles'=> array_map(function ($role) { return $role->getRole(); }, $roles),'trust_resolver'=> $this->trustResolver,'security_context'=> $this->securityContext,
+$variables = array('token'=> $token,'user'=> $token->getUser(),'object'=> $request,'request'=> $request,'roles'=> array_map(function ($role) { return $role->getRole(); }, $roles),'trust_resolver'=> $this->trustResolver,'auth_checker'=> $this->authChecker,
 );
 return array_merge($request->attributes->all(), $variables);
 }

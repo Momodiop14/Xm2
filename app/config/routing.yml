@@ -1,10 +1,14 @@
 xm_user:
-    resource: "@XmUserBundle/Resources/config/routing.yml"
-    prefix:   /utilisateur
+    resource: "@XmUserBundle/Resources/config/routing_user.yml"
+    prefix:   /utilisateurs
+
+xm_message:
+    resource: "@XmUserBundle/Resources/config/routing_message.yml"
+    prefix:   /messages
 
 xm_covoiturage:
     resource: "@XmCovoiturageBundle/Resources/config/routing.yml"
-    prefix:   /covoiturage
+    prefix:   /covoiturages
 
 xm_main:
     resource: "@XmMainBundle/Resources/config/routing.yml"
