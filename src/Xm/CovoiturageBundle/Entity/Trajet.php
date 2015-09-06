@@ -29,17 +29,10 @@ class Trajet
     private $prixTrajet;
 
     /**
-     * @var integer
-     *
-     * @ORM\Column(name="num_trajet", type="integer")
-     */
-    private $numTrajet;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Covoiturage")
+     * @ORM\ManyToOne(targetEntity="Covoiturage",inversedBy="trajets")
      * @ORM\JoinColumn(onDelete="CASCADE")
      **/
-    private $ref_coivoiturage;
+    private $ref_covoiturage;
 
     /**
      * @var string

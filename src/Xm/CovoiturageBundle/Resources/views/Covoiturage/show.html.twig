@@ -1,0 +1,68 @@
+{% extends '::base.html.twig' %}
+
+{% block body -%}
+    <h1>Covoiturage</h1>
+
+    <table class="record_properties">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ entity.id }}</td>
+            </tr>
+            <tr>
+                <th>Placesdispo</th>
+                <td>{{ entity.placesDispo }}</td>
+            </tr>
+            <tr>
+                <th>Trajetsimple</th>
+                <td>{{ entity.trajetSimple }}</td>
+            </tr>
+            <tr>
+                <th>Visible</th>
+                <td>{{ entity.visible }}</td>
+            </tr>
+            <tr>
+                <th>Datedepart</th>
+                <td>{{ entity.dateDepart|date('Y-m-d H:i:s') }}</td>
+            </tr>
+            <tr>
+                <th>Dateretour</th>
+                <td>{{ entity.dateRetour|date('Y-m-d H:i:s') }}</td>
+            </tr>
+            <tr>
+                <th>Heuredepart</th>
+                <td>{{ entity.heureDepart }}</td>
+            </tr>
+            <tr>
+                <th>Heureretour</th>
+                <td>{{ entity.heureRetour }}</td>
+            </tr>
+            <tr>
+                <th>Addressdepart</th>
+                <td>{{ entity.addressDepart }}</td>
+            </tr>
+            <tr>
+                <th>Addressretour</th>
+                <td>{{ entity.addressRetour }}</td>
+            </tr>
+            <tr>
+                <th>Resume</th>
+                <td>{{ entity.resume }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+        <ul class="record_actions">
+    <li>
+        <a href="{{ path('') }}">
+            Back to the list
+        </a>
+    </li>
+    <li>
+        <a href="{{ path('_edit', { 'id': entity.id }) }}">
+            Edit
+        </a>
+    </li>
+    <li>{{ form(delete_form) }}</li>
+</ul>
+{% endblock %}

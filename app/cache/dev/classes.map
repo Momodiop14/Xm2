@@ -87,4 +87,5 @@
   86 => 'Sensio\\Bundle\\FrameworkExtraBundle\\EventListener\\HttpCacheListener',
   87 => 'Sensio\\Bundle\\FrameworkExtraBundle\\EventListener\\SecurityListener',
   88 => 'Sensio\\Bundle\\FrameworkExtraBundle\\Configuration\\ConfigurationAnnotation',
+  89 => 'JMS\\DiExtraBundle\\HttpKernel\\ControllerResolver',
 );

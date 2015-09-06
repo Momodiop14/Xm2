@@ -15,24 +15,21 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username','text' ,array(   'label' => 'Pseudonyme') )
-            ->add('password','password',array('label' => 'Mot de passe') )
             ->add('prenom')
             ->add('nom')
-            ->add('dateNaissance' ,'date', array(  'label' => 'Date de naissance ' , 
+            ->add('dateNaissance' ,'date', array(  'label' => 'Date de naissance ' ,
                                                    'widget' => 'single_text',
-                                                                                                    
+                                                   'format' => 'dd-MM-yyyy',                                                                                                   
                                                    'attr' => array(
                                                                     'class'=>'datepicker',
                                                                   ) 
 
                                                 )
                  )
-            ->add('email','email')
             ->add('telephone','text',array('max_length' => 9  ,'label' => 'Téléphone') )
             ->add('localite','text',array(    'label' => 'votre localité' ,
                                              'attr' => array(
-                                                             'id'=>'where' ) 
+                                                             'class'=>'address' ) 
                                          )               
                  );
            
@@ -45,7 +42,7 @@ class UserType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Xm\UserBundle\Entity\User'
+            'data_class' => 'Xm\UserBundle\Entity\Utilisateur'
         ));
     }
 
@@ -54,6 +51,11 @@ class UserType extends AbstractType
      */
     public function getName()
     {
-        return 'xm_userbundle_user';
+        return 'xm_user_registration';
+    }
+
+      public function getParent()
+    {
+        return 'fos_user_registration';
     }
 }

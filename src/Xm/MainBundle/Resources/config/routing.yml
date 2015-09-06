@@ -6,25 +6,16 @@ xm_main_guide:
     path:     /guide
     defaults: { _controller: XmMainBundle:Default:guide}
 
+xm_main_error:
+    path:     /error403
+    defaults: { _controller: XmMainBundle:Default:error }
+
+
 xm_main_connexion:
     path:     /connexion
     defaults: { _controller: XmMainBundle:Security:login }
 
-xm_main_validation_connexion:
-     path:     /connexion_validation
-
-xm_main_deconnexion:
-    path:     /deconnexion
-
-utilisateur_new:
-    path:     /inscription
-    defaults: { _controller: "XmMainBundle:Default:new" }
-
-utilisateur_create:
-    path:     /inscription_validation
-    defaults: { _controller: "XmMainBundle:Default:create" }
-    methods:  POST
-
 utilisateur_reset:
-    path:     /{email}/recuperation
-    defaults: { _controller: "XmMainBundle:Default:reset" }
+    path:     /recuperation
+    defaults: { _controller: "XmMainBundle:Security:reset" }
+    methods:  POST

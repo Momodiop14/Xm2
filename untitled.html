@@ -1,0 +1,363 @@
+     <html>
+
+          <head>
+                <?php require_once "vue/links.php"; ?>
+                 <link href="utils/Datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">    
+                 <link rel="Stylesheet" type="text/css" href="utils/JhtmlArea/style/jHtmlArea.css" />
+                 <script type="text/javascript" src="utils/JhtmlArea/scripts/jHtmlArea-0.8.js"></script>
+                  <script src="utils/Bootstrap-growl/jquery.bootstrap-growl.js"></script>        
+                 <script text="javascript"  charset="UTF-8">
+                        
+    
+                                
+                  </script>
+                  
+                  <script type="text/javascript">
+
+                    
+                        window.choosen;
+                        waypoints=0;
+                     $(document).ready(function () {
+                         array_cities=$("#ville_passages option");                       
+                          
+                       
+                       $("select").mouseover(function () 
+                               {
+                                    $(this).popover({placement:'right'});
+                                 });   
+                             
+                              $("select").mouseleave(function () 
+                               {
+                                    $(this).popover("hide");
+                                 }); 
+
+                                                          
+                               $("#add_city").mouseover(function () 
+                               {
+                                    $(this).popover({placement:'right'});
+                                 });   
+                             
+                               $("#add_city").mouseout(function () 
+                               {
+                                    $(this).popover("hide");
+                                 });  
+
+                               $("#add_city").click(function () 
+                               {
+                                       var conteneur=document.createElement("div");
+                                       conteneur.className="input-group" ;
+                                       conteneur.style.display="black" ;
+                                       conteneur.style.marginTop="15px" ;
+
+                                      
+                                      
+                                       var escale = document.createElement("input");
+                                       escale.type="text" ;
+                                       escale.className="form-control" ;
+                                       escale.name="waypoints"+waypoints ;
+                                       console.log(escale.name);
+                                       escale.placeholder="ville de passage";
+                                       escale.readOnly=true;
+                                       escale.required=true;
+                                      
+                                       var addon=document.createElement("span");
+                                       addon.className="input-group-btn";
+                                       
+                                       var link_set=document.createElement("button");
+                                       link_set.type="button";
+                                       link_set.className="btn btn-primary";
+                                       link_set.innerHTML="Choisir ";
+                                       link_set.onclick=chooseElement;
+                                      
+
+
+                                       var icon_set=document.createElement("span");
+                                       icon_set.className="fa fa-hand-o-up";     
+                                       
+
+                                       var link_del=document.createElement("button");
+                                       link_del.type="button";
+                                       link_del.className="btn btn-danger";
+                                       link_del.innerHTML="Enlever ";
+                                       link_del.onclick=function () {
+                                               this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode) ; 
+                                          }
+                                                                              
+                                       var icon_del=document.createElement("span");
+                                       icon_del.className="fa fa-trash";
+                                        
+                                                                      
+                                       link_set.appendChild(icon_set);
+                                       link_del.appendChild(icon_del);
+                                       addon.appendChild(link_set);       
+                                       addon.appendChild(link_del);                                                                         
+                                       conteneur.appendChild(escale); 
+                                       conteneur.appendChild(addon);                                   
+                                       $('#passage').append(conteneur);
+                                                                                                                       
+                                       waypoints++;
+                                 
+                                 }); 
+                                 
+                               
+                                 document.getElementById('destination').onclick=chooseElement; 
+                                 document.getElementById('depart').onclick=chooseElement; 
+                                 
+                                                   
+                                
+                                function chooseElement () 
+                                  {
+                                         
+                                         choosen=this.parentNode.parentNode.firstElementChild ;                              
+                                       
+                                         $('#choix_ville').modal('show');
+                                         
+                                         $('#ville_passages').children('option').remove();
+                                         
+                                         for (var i = 0; i<array_cities.length; i++) 
+                                                 {
+                                                   element=array_cities[i].value;
+
+                                                   var ok=used(element);
+                                                   if (ok==true ) 
+                                                    {
+
+                                                       var city=document.createElement('option');
+                                                       city.innerHTML=element;
+                                                       city.value=element;
+                                                       $('#ville_passages').append(city);
+
+                                                    }
+                                                
+                                                 }
+                                          
+                                          
+                                        document.getElementById('choose').onclick=function valider () {
+                                           
+                                            choosen.value=this.parentNode.firstElementChild.value;  
+                                          
+
+                                        }
+                                        
+                                     
+                                  }
+
+
+                                
+                            $('textarea').htmlarea();   
+
+                     });
+
+
+                  </script>
+         </head>
+      
+
+         <body data-spy="scroll" data-target=".bs-docs-sidebar">
+             <div class="container">
+                    <div class="row ">
+                     
+                              <div class="span12"> 
+                                    <?php require_once "vue/header.php"; ?>
+
+
+                                      <div class="row "> <!-- il va contenir le corps-->  
+
+                                                <?php require_once "vue/menu.php"; ?>     
+
+                                               <div class="span7 offset2 "><!-- Il va contenir les autres infos -->
+                                                     
+                                                      <div class="row"> <!--barre de recherche -->
+
+
+                                                         
+                                                                      <form class="form span center-block" method="POST" action="index.php?action=validation_covoiturage" >
+                                                                          <div >
+                                                                               <h2>Nouveau Covoiturage</h2>
+                                                                          </div>  
+                                                                       
+                                                                          <div class="form-group" style="margin-bottom:10px">
+
+                                                                                <div class="input-group">
+                                                                                    <input  type="text" class="form-control" name="depart"  placeholder="ville de depart" readonly required>
+                                                                                    <span class="input-group-btn">
+                                                                                        <button class="btn btn-primary " id="depart" type="button">Choisir <span class="fa fa-hand-o-up"> </span></button>
+                                                                                    </span>
+                                                                                </div><!-- /input-group -->
+
+                                                                               
+                                                                         </div>
+
+                                                                          <div class="form-group">
+                                                                              
+                                                                               <div class="input-group" style="margin-bottom:10px">
+
+                                                                                  <input type="text" name="destination" class="form-control" placeholder="ville de destination" readonly required>
+                                                                                  <span class="input-group-btn">
+                                                                                    <button class="btn btn-primary choose" id="destination" type="button">Choisir <span class="fa fa-hand-o-up"></span></button>
+                                                                                  </span>
+                                                                              </div><!-- /input-group -->
+                                                                                
+                                                                          </div>
+
+                                                                          <div class="form-group">
+                                                                             <span id="add_city" class="btn" data-toggle="popover" data-content="ajouter une ville de passage"> <span class="fa fa-plus"></span> </span> <span> <em>( vos chances de trouver des covoituriers en cours de route augmente)</em></span>
+                                                                             <div id="passage" class="form-group" > 
+
+                                                                             </div>
+  
+                                                                          </div>
+  
+                                                                                  <div class="form-group">
+                                                                                         <label class="control-label">Date de d&eacutepart</label>
+                                                                                            <div class="controls input-append  date form_date" data-date="" name="date_depart" data-date-format="yyyy-mm-dd" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
+                                                                                                <input size="18" type="text" value="" readonly required>
+                                                                                                <span class="add-on"><i class="fa fa-remove"></i></span>
+                                                                                                <span class="add-on"><i class="icon-th"></i></span>
+                                                                                            </div>
+                                                                                  </div>
+                                                                                  
+                                                                                  <div class="control-group">
+                                                                                         <label class="control-label">Heure de d&eacutepart</label>
+                                                                                            <div class="controls input-append date form_time" data-date="" data-date-format="hh:ii" data-link-field="dtp_input3" name="heure_depart" data-link-format="hh:ii">
+                                                                                                <input size="16" type="text" value="" readonly required> 
+                                                                                                <span class="add-on"><i class="fa fa-remove"></i> </span>
+                                                                                                <span class="add-on"><i class="icon-th"></i>    </span>
+                                                                                            </div>
+                                                                                  </div>
+
+                                                                      
+
+
+                                                                            <div class="form-group">
+                                                                                   <input name="places" type="number" class="input-xlarge " min="1" max="8"  placeholder="nombre de places disponibles" required>
+                                                                            </div>
+                                                                            
+                                                                            
+                                                                            <div class="form-group">
+                                                                                   <input name="rassemblement" type="text" class="input-xlarge " min="500" placeholder="adresse du point de rassemblement" required>
+                                                                              
+                                                                                                                                                                
+                                                                            </div>
+                                                                            
+
+                                                                            <div class="form-group">
+                                                                              <textarea name="message" class="input-xxlarge" rows="20" required  placeholder="toto">Veuillez saisir les d&eacutetails de votre covoiturage (modele voiture, si les clients doivent amener des bagages ,fumer .....)
+                                                                                
+                                                                             </textarea>
+                                                                            </div>
+
+                                                                                                                                                     
+                                                                            <br>
+                                                                            <div class="form-group ">
+                                                                             
+                                                                              <button type="submit" class="btn btn-primary span2 offset2">  Valider l'etape</button>
+                                                                                                                                                       
+                                                                                                                                                      
+                                                                          </div>
+
+                                                                       
+                                                                      
+                                                                      </form>
+
+                                                        
+
+                                                       </div> 
+
+                                                             
+                                                
+                                                       
+
+                                                </div>
+
+                                                
+
+                                           
+                                               
+
+
+                                        </div>
+
+                                          <?php require 'footer.php'; ?>
+                                       
+
+                                      
+                                   
+                                
+                             </div>
+                     </div>
+
+                 
+
+                     
+           </div>
+
+
+
+
+
+
+
+             <script type="text/javascript" src="utils/Datetimepicker/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+                 <script type="text/javascript" src="utils/Datetimepicker/js/locales/bootstrap-datetimepicker.fr.js" charset="UTF-8"></script>
+                 <script type="text/javascript">
+                           var nowDate = new Date();
+                           var today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0, 0, 0);
+                          $('.form_date').datetimepicker({
+                                language:  'fr',
+                                weekStart: 1,
+                                todayBtn:  1,
+                                autoclose: 1,
+                                startDate: today,
+                                todayHighlight: 1,
+                                startView: 2,
+                                minView: 2,
+                                forceParse: 0,
+                           });
+                          
+                          $('.form_time').datetimepicker({
+                                language:  'fr',
+                                weekStart: 1,
+                                todayBtn:  1,
+                                autoclose: 1,
+                                todayHighlight: 1,
+                                startView: 1,
+                                minView: 0,
+                                maxView: 1,
+                                minuteStep:5,
+                                forceParse: 0
+                            });
+               </script>    
+    
+
+
+
+                      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         </body>    
+
+
+
+
+
+
+
+
+     </html>

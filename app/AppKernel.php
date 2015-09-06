@@ -20,13 +20,20 @@ class AppKernel extends Kernel
              new Xm\MainBundle\XmMainBundle(),
              new Xm\CovoiturageBundle\XmCovoiturageBundle(),
              new Xm\UserBundle\XmUserBundle(),
-
-             //new Knp\Bundle\DisqusBundle\KnpDisqusBundle(),
-             //new Knp\Bundle\PaginatorBundle\KnpPaginatorBundle(),
-             //new Ornicar\GravatarBundle\OrnicarGravatarBundle(),
-             //new \Nc\FayeClient\Adapter\CurlAdapter()
-           
+             new Xm\MessageBundle\XmMessageBundle(),
+             
+             new JMS\AopBundle\JMSAopBundle(),
+             new JMS\SecurityExtraBundle\JMSSecurityExtraBundle(),
+             new JMS\DiExtraBundle\JMSDiExtraBundle($this),  
+             new Liip\ImagineBundle\LiipImagineBundle(),
+             new FOS\MessageBundle\FOSMessageBundle(),
+             new Knp\Bundle\PaginatorBundle\KnpPaginatorBundle(),
+             new FOS\UserBundle\FOSUserBundle(),
+             #new FOS\RestBundle\FOSRestBundle(),
+             #new FOS\CommentBundle\FOSCommentBundle(),
             
+             
+
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

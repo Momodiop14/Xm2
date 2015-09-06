@@ -5,6 +5,7 @@ namespace Xm\CovoiturageBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Xm\CovoiturageBundle\Entity\Ville ;
+use Symfony\Component\Validator\Constraints as Assert ;
 /**
  * Covoiturage
  *
@@ -26,6 +27,16 @@ class Covoiturage
      * @var integer
      *
      * @ORM\Column(name="places_dispo", type="integer")
+     *
+     *
+     * @Assert\Range(
+     *      min = 1,
+     *      max = 5,
+     *      minMessage = "veuillez proposer au moins une place",
+     *      maxMessage = "Vous ne devez pas dépasser 5 places",
+     *
+     *     groups={"basics"}
+     * )
      */
     private $placesDispo;
 
@@ -48,12 +59,19 @@ class Covoiturage
      *
      * @ORM\Column(name="date_depart", type="date" ,nullable=false)
      */
+    /**
+     * @Assert\GreaterThanOrEqual("today UTC",groups={"basics"})
+     */
     private $dateDepart;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="date_retour", type="date")
+     */
+    /**
+     * @Assert\GreaterThanOrEqual("today UTC",groups={"basics"})
+     *  @Assert\LessThanOrEqual("+2 months",groups={"basics"})
      */
     private $dateRetour;
 
@@ -94,16 +112,21 @@ class Covoiturage
 
     
      /**
-     * @ORM\ManyToOne(targetEntity="Xm\UserBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Xm\UserBundle\Entity\Utilisateur")
      * @ORM\JoinColumn(onDelete="CASCADE")
      **/
     private $initiateur;
 
 
     /**
-     * @ORM\OneToMany(targetEntity="Trajet", mappedBy="Covoiturage")
+     * @ORM\OneToMany(targetEntity="Trajet", mappedBy="ref_covoiturage")
      **/
      private $trajets;
+    
+     /**
+     * @ORM\OneToMany(targetEntity="Avis", mappedBy="covoiturage_passe")
+     **/
+     private $avis_clients;
 
 
     
@@ -111,6 +134,7 @@ class Covoiturage
     public function __construct() 
      {
         $this->trajets = new ArrayCollection();
+        $this->avis_clients = new ArrayCollection ();
      }
 
      /**
@@ -311,10 +335,10 @@ class Covoiturage
     /**
      * Set initiateur
      *
-     * @param \Xm\UserBundle\Entity\User $initiateur
+     * @param \Xm\UserBundle\Entity\Utilisateur $initiateur
      * @return Covoiturage
      */
-    public function setInitiateur(\Xm\UserBundle\Entity\User $initiateur )
+    public function setInitiateur(\Xm\UserBundle\Entity\Utilisateur $initiateur )
     {
         $this->initiateur = $initiateur;
 
@@ -324,7 +348,7 @@ class Covoiturage
     /**
      * Get initiateur
      *
-     * @return \Xm\UserBundle\Entity\User 
+     * @return \Xm\UserBundle\Entity\Utilisateur
      */
     public function getInitiateur()
     {
@@ -408,5 +432,39 @@ class Covoiturage
     public function getTrajets()
     {
         return $this->trajets;
+    }
+
+   
+    /**
+     * Add avis_clients
+     *
+     * @param \Xm\CovoiturageBundle\Entity\Avis $avisClients
+     * @return Covoiturage
+     */
+    public function addAvisClient(\Xm\CovoiturageBundle\Entity\Avis $avisClients)
+    {
+        $this->avis_clients[] = $avisClients;
+
+        return $this;
+    }
+
+    /**
+     * Remove avis_clients
+     *
+     * @param \Xm\CovoiturageBundle\Entity\Avis $avisClients
+     */
+    public function removeAvisClient(\Xm\CovoiturageBundle\Entity\Avis $avisClients)
+    {
+        $this->avis_clients->removeElement($avisClients);
+    }
+
+    /**
+     * Get avis_clients
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getAvisClients()
+    {
+        return $this->avis_clients;
     }
 }

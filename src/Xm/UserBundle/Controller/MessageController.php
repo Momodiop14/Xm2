@@ -5,6 +5,7 @@ namespace Xm\UserBundle\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
+
 use Xm\UserBundle\Entity\Message;
 use Xm\UserBundle\Entity\MessageRepository;
 use Xm\UserBundle\Form\MessageType;
@@ -22,12 +23,15 @@ class MessageController extends Controller
      */
     public function indexAction()
     {
+        $user=$this->get('security.context')->getToken()->getUser();  
         $em = $this->getDoctrine()->getManager();
-
-        $entities = $em->getRepository('XmUserBundle:Message')->findAll();
-
+        
+        $outbox = $em->getRepository('XmUserBundle:MessageSent')->findBySender( $user->getId() );
+        $inbox = $em->getRepository('XmUserBundle:MessageReceived')->findAllMessagesReceived( $user->getId() );
+        
         return $this->render('XmUserBundle:Message:index.html.twig', array(
-            'entities' => $entities,
+            'outbox' => $outbox,
+            'inbox'  => $inbox 
         ));
     }
     /**
@@ -36,7 +40,7 @@ class MessageController extends Controller
      */
     public function createAction(Request $request)
     {
-        $entity = new Message();
+        $entity = new MessageSent();
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
 
@@ -48,44 +52,17 @@ class MessageController extends Controller
             return $this->redirect($this->generateUrl('message_show', array('id' => $entity->getId())));
         }
 
-        return $this->render('XmUserBundle:Message:new.html.twig', array(
-            'entity' => $entity,
-            'form'   => $form->createView(),
-        ));
+        return $this->render('XmUserBundle:Message:new.html.twig');
     }
 
-    /**
-     * Creates a form to create a Message entity.
-     *
-     * @param Message $entity The entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createCreateForm(Message $entity)
-    {
-        $form = $this->createForm(new MessageType(), $entity, array(
-            'action' => $this->generateUrl('message_create'),
-            'method' => 'POST',
-        ));
-
-        $form->add('submit', 'submit', array('label' => 'Create'));
-
-        return $form;
-    }
-
+    
     /**
      * Displays a form to create a new Message entity.
      *
      */
     public function newAction()
     {
-        $entity = new Message();
-        $form   = $this->createCreateForm($entity);
-
-        return $this->render('XmUserBundle:Message:new.html.twig', array(
-            'entity' => $entity,
-            'form'   => $form->createView(),
-        ));
+         return $this->render('XmUserBundle:Message:new.html.twig');
     }
 
     /**
@@ -135,54 +112,6 @@ class MessageController extends Controller
     }
 
     /**
-    * Creates a form to edit a Message entity.
-    *
-    * @param Message $entity The entity
-    *
-    * @return \Symfony\Component\Form\Form The form
-    */
-    private function createEditForm(Message $entity)
-    {
-        $form = $this->createForm(new MessageType(), $entity, array(
-            'action' => $this->generateUrl('message_update', array('id' => $entity->getId())),
-            'method' => 'PUT',
-        ));
-
-        $form->add('submit', 'submit', array('label' => 'Update'));
-
-        return $form;
-    }
-    /**
-     * Edits an existing Message entity.
-     *
-     */
-    public function updateAction(Request $request, $id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('XmUserBundle:Message')->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Message entity.');
-        }
-
-        $deleteForm = $this->createDeleteForm($id);
-        $editForm = $this->createEditForm($entity);
-        $editForm->handleRequest($request);
-
-        if ($editForm->isValid()) {
-            $em->flush();
-
-            return $this->redirect($this->generateUrl('message_edit', array('id' => $id)));
-        }
-
-        return $this->render('XmUserBundle:Message:edit.html.twig', array(
-            'entity'      => $entity,
-            'edit_form'   => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
-        ));
-    }
-    /**
      * Deletes a Message entity.
      *
      */
@@ -206,20 +135,5 @@ class MessageController extends Controller
         return $this->redirect($this->generateUrl('message'));
     }
 
-    /**
-     * Creates a form to delete a Message entity by id.
-     *
-     * @param mixed $id The entity id
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm($id)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('message_delete', array('id' => $id)))
-            ->setMethod('DELETE')
-            ->add('submit', 'submit', array('label' => 'Delete'))
-            ->getForm()
-        ;
-    }
+
 }

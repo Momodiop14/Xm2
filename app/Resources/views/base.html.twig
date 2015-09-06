@@ -2,138 +2,102 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>{% block title %}XarrMatt{% endblock %}</title>
-        {% block stylesheets %}
-              
-            <link href="{{ asset('Resources/font-awesome/css/font-awesome.min.css') }}" type="text/css" rel="stylesheet" />
+        <title>{% block title %}NagnDem{% endblock %}</title>
+         {% include 'BaseStylesheetsScripts.html.twig'  %}
 
-             <link href="{{ asset('Resources/bootstrap/css/bootstrap.min.css') }}" type="text/css" rel="stylesheet" />
-
-             <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
-        
-             <style type="text/css">
-               .header a{color:black}
-                li:hover a i.fa-facebook {color:#3b5998}
-                li:hover a i.fa-twitter{color:#55ACEE}
-                li:hover a i.fa-google-plus  {color :#DD4B39}
-                
-                
-              </style>
-        {% endblock %}
-
-         {% block javascripts %}
-          <script src="{{ asset('Resources/jquery.js') }}" ></script>
-          <script src="{{ asset('Resources/bootstrap/js/bootstrap.min.js') }}" ></script>
-          <script src="{{ asset('Resources/Bootstrap-growl/jquery.bootstrap-growl.js') }}" > </script>
-
-          <script type="text/javascript">
-             $(document).ready(function(){
-
-                 $('#ancretop').hide();
-                 $("#ancretop").css('top',0);
-                 $('#ancretop').css('position','relative') ;
-                 
-
-                 $('#ancretop').click(function(){
-                  var the_id = $(this).attr("href");
-
-                  $('html, body').animate({
-                    scrollTop:0}, 'slow');
-                  return false;
-                });
-
-
-                $(window).scroll(function () 
-                {
-               
-                        if ($(this).scrollTop() > 640) 
-                        {  
-                            $("#ancretop").css('top',$(this).scrollTop()+200);
-                            $("#ancretop").fadeIn(1500);
-                        } else if ($(this).scrollTop() < 370) 
-                          {
-                            $("#ancretop").fadeOut(1500);
-                             
-                           }
-                 });
-
-                });
-
-               function notify(message,type_message)
-                 {
-
-                   setTimeout(function() {
-                                           $.bootstrapGrowl(message,
-                                             {   
-                                                 type: type_message ,
-                                                 align: 'center',
-                                                 width: 'auto',
-                                                 allow_dismiss: true,
-                                                 offset: {from: 'top', amount: 70}, // 'top', or 'bottom'
-
-
-                                             });
-                                         }, 2000);
-                                                                      
-                                                                    
-                 }
-
-
-          </script>
-
-
+         {% block  scriptInternaute %}
+           
+             <script src="{{asset('Resources/public/js/common.js') }}"></script>
+             <script src="{{asset('Resources/public/js/registration.js') }}"></script>
+           
          {% endblock %}
+
+         {% block styleInternaute %}
+        
+        {% endblock %}
         
     </head>
     <body >
              <div class="container-fluid" style="background-color:#FDFDFD" >
 
-
              {% block header %}
                
                  <div class="header" id="top">                                               
-                   
-                   {% if is_granted('ROLE_USER') %}
-                       {% include 'menu_membre.html.twig'  %}
-                      
-                       {%elseif is_granted('IS_AUTHENTICATED_ANONYMOUSLY')%}
-                            {% include 'menu_internaute.html.twig'  %}
-
-                     {% endif %}                                
-                                
-                            
+                       {% include 'menu_internaute.html.twig'  %}
+                                                      
                   </div>
 
              {% endblock header %}
 
-              <a id="ancretop" class='col-sm-offset-11 btn btn-default'> <span class="glyphicon glyphicon-menu-up"></span> </a>
+             <br><br><br>
+             
+      
+   <div> <a href="#top" class='col-sm-offset-11 btn btn-info ancre'> <span class="fa fa-arrow-up"></span> </a>  </div>
              {% block content %}
+              
+               <div class="row">
+                
+                       {% block content_specific %}
+                         <div class="col-sm-9">
+                                  
+                               <div class="row presentation jumbotron">
+
+                              presentation
+
+                              </div>
+
+                              <div class="row">
+                               
+                               <div class="jumbotron col-lg-7">
+                                   temoignage
+
+                               </div>
+
+                              
+
+                               <div class="col-md-offset-2 jumbotron col-lg-3">
+                                   top villes plus visitées
+
+                                 
+
+                               </div>
+                            
+
+                              </div>
+                          
+                              <div class="row">
+                                
+                               <div class="jumbotron col-lg-5">
+                                   recherche rapide
+
+                               </div>
+
+                              
+
+                               <div class="col-md-offset-2 jumbotron col-lg-5">
+                                   bons plans récents
+
+                               </div>
+                            </div>
+                    
+                        </div>
+                    {% endblock %}
+               
+                      <div class="col-sm-3"  >
+                         
+                              {{render(controller('FOSUserBundle:Registration:register')) }} 
+                      </div>
+                        
+                        
+                  </div>
+                
+                </div>
+            
 
              {% endblock content %}
               
-             {% block footer %}
-                  <div class="row footer navbar navbar-inverse navbar-fixed-bottom" >
-                    
-                       <div class="col-sm-1">
-                         <span >XarrMatt</span>  
-                       </div>
-
-                        <div class="col-sm-1">
-                           <span>A Propos</span> 
-                       </div>
-                        <div class="col-sm-1">
-                            <span>Réseaux Sociaux</span>
-                       </div>
-                        <div class="col-sm-1">
-                           jjijjjj
-                       </div>
-                        
-                       
-                    </div>               
-              
-             {% endblock footer%}
-        
-      
+           
+        {% include 'BaseFooterScroller.html.twig' %}
         
     </body>
 </html>

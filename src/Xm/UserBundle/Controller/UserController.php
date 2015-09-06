@@ -11,7 +11,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Xm\UserBundle\Entity\User;
 use Xm\UserBundle\Entity\UserRepository;
 use Xm\UserBundle\Form\UserType;
-
+    
 /**
  * User controller.
  *
@@ -55,13 +55,18 @@ class UserController extends Controller
      */
     public function showAction($username)
     {
-        $em = $this->getDoctrine()->getManager();
+        $entity = $this->get('security.context')->getToken()->getUser() ;
+         if( $entity->isAuthor($username ) == false )
+             {
+                 $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('XmUserBundle:User')->findOneByUsername($username);
+                 $entity = $em->getRepository('XmUserBundle:User')->findOneByUsername($username);
 
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find User entity.');
-        }
+                 if (!$entity) {
+                    throw $this->createNotFoundException('Unable to find User entity.');
+                               }
+             }
+       
          
          
         return $this->render('XmUserBundle:User:show.html.twig', array(
@@ -79,18 +84,9 @@ class UserController extends Controller
     
     public function editAction($username)
     {
-        $em = $this->getDoctrine()->getManager();
         
-        $entity= new User();
-        $entity = $em->getRepository('XmUserBundle:User')->findOneByUsername($username);
-        
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find User entity.');
-        }
-
-        $user = new User();
-        $user = $this->get('security.context')->getToken()->getUser() ;
-        if( $entity->isAuthor($user ) )
+        $entity = $this->get('security.context')->getToken()->getUser() ;
+        if( $entity->isAuthor($username ) )
            {
              $editForm = $this->createEditForm($entity);
              return $this->render('XmUserBundle:User:edit.html.twig', array(
@@ -140,7 +136,7 @@ class UserController extends Controller
      * Deletes a User entity.
      *
      *
-    * @Route("/{username}/descativation", name="utilisateur_delete")
+    * 
     * @Security("entity.isAuthor(user)")
     */
     

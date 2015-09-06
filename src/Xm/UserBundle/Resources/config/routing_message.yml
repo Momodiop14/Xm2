@@ -2,17 +2,13 @@ message:
     path:     /
     defaults: { _controller: "XmUserBundle:Message:index" }
 
-message_show:
-    path:     /{username}
-    defaults: { _controller: "XmUserBundle:Message:show" }
-
-message_show:
-    path:     /{username}
-    defaults: { _controller: "XmUserBundle:Message:show" }
-
 message_new:
     path:     /nouveau
     defaults: { _controller: "XmUserBundle:Message:new" }
+
+message_show:
+    path:     /id/{username}
+    defaults: { _controller: "XmUserBundle:Message:show" }
 
 message_create:
     path:     /creer

@@ -1,0 +1,51 @@
+{% extends '::base_membre.html.twig' %}
+
+ 
+ {% block script %}
+            {{parent()}}               
+            <script type="text/javascript">
+                 $(document).ready(function () 
+                     {
+                        $('#tableau').DataTable({
+                          "ordering": true,
+
+                          "oLanguage": {
+                               "sEmptyTable": "Aucune donnée disponible sur le tableau",
+                              "sInfo": " _TOTAL_ entrées à afficher (_START_ à _END_)",
+                              "sInfoEmpty": "Pas de résultat à afficher",
+                              "sInfoFiltered": " - filtrage depuis _MAX_ entrées",
+                              "sLengthMenu": "afficher _MENU_ lignes",
+                              "sLoadingRecords": "Veuilez patienter - chargement...",
+                              "sProcessing": "DataTables est actuellement occupé",
+                              "sSearch": "Appliquer un filtre sur :",
+                              "sZeroRecords": "Pas de résultat à afficher",
+
+                            "oPaginate": {
+                              "sNext": "Suivant",
+                              "sLast": "Fin",
+                              "sPrevious": "Précédent"
+                              
+                            }
+
+
+                          }
+
+                       } );
+                          
+             
+                      });
+
+
+
+            </script>
+
+       {% endblock%}
+               
+{% block  content%} 
+
+  <div>
+    {% block fos_message_content %}
+
+    {% endblock %}
+  </div>
+{% endblock %}

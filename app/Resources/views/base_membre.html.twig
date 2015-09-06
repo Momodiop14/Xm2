@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}NagnDem{% endblock %}</title>
+          {% include 'BaseStylesheetsScripts.html.twig'  %}
+
+           {% block style%}
+               <link href="https://cdn.datatables.net/1.10.9/css/dataTables.bootstrap.min.css" rel="stylesheet" type="text/css" >
+               
+           {% endblock %}
+
+             {% block script  %}
+                   
+                                
+                  <script src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
+                   <script src="https://cdn.datatables.net/1.10.9/js/dataTables.bootstrap.min.js"></script>
+
+           {% endblock %}
+
+
+        
+    </head>
+    <body >
+             <div class="container-fluid" style="background-color:#FDFDFD" >
+
+
+             {% block header %}
+               
+                 <div class="header" id="top">                                               
+                      {% include 'menu_membre.html.twig'  %}
+                   
+                  </div>
+
+             {% endblock header %}
+
+             <br><br><br>
+            
+
+             <div> <a href="#top" class='col-sm-offset-11 btn btn-info ancre'> <span class="fa fa-arrow-up"></span> </a>  </div>
+             {% block content %}
+                 <div class="row">
+                   <div class="col-sm-9">
+                       <div class="row presentation jumbotron">
+                              
+                               {% for flashMessage in app.session.flashbag.get('loginSuccess') %}
+                                   
+                                   <div class="alert alert-info alert-dismissible" role="alert">
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                          {{ flashMessage }}
+                                    </div>
+                              {% endfor %}
+                              
+
+                              presentation
+
+                              </div>
+
+                              <div class="row">
+                               
+                               <div class="jumbotron col-lg-6">
+                                   temoignage
+
+                               </div>
+
+                              
+
+                               <div class="col-md-offset-2 jumbotron col-lg-3">
+                                   top villes plus visitées
+
+                               </div>
+                            
+
+                              </div>
+                          
+                              <div class="row">
+                                
+                                   <div class="jumbotron col-lg-5">
+                                       recherche rapide
+
+                                   </div>
+
+                                  
+
+                                   <div class="col-md-offset-2 jumbotron col-lg-4">
+                                       bons plans récents
+
+                                   </div>
+                            </div>
+                    
+                   </div>
+
+                   <div class="col-sm-3"  >
+                                                                              
+                                   <div class=" jumbotron ">
+                                       fil d'actualité
+
+                                   </div>
+                             
+                  </div>
+                </div>
+             {% endblock content %}
+                        
+        
+         {% include 'BaseFooterScroller.html.twig' %}
+        
+    </body>
+</html>

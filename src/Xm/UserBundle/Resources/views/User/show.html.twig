@@ -1,47 +1,132 @@
-{% extends '::base.html.twig' %}
+{% extends '::base_membre.html.twig' %}
 
 {% block content %}
-    <h1>User</h1>
+    
+     <div class="row">
+        
+        <div class="col-sm-7">
+           <div class="panel panel-info">
+                 
+                  <div class="panel-heading">
+                         <h4 style="display:inline"> Mes Coordonnées</h4>      
+                         <div style="display:inline" class="col-sm-offset-8">
 
-    <table class="record_properties">
-        <tbody>
-            <tr>
-                <th>Username</th>
-                <td>{{ entity.username }}</td>
-            </tr>
-            <tr>
-                <th>Prenom</th>
-                <td>{{ entity.prenom }}</td>
-            </tr>
-            <tr>
-                <th>Nom</th>
-                <td>{{ entity.nom }}</td>
-            </tr>
-            <tr>
-                <th>Email</th>
-                <td>{{ entity.email }}</td>
-            </tr>
-            <tr>
-                <th>Telephone</th>
-                <td>{{ entity.telephone }}</td>
-            </tr>
-            <tr>
-                <th>Address</th>
-                <td>{{ entity.localite }}</td>
-            </tr>
-           
-        </tbody>
-    </table>
+                           {% if entity.isAuthor(app.user) %}
+                            <a  href="{{ path('utilisateur_edit', { 'username': entity.username }) }}" >
+                               <span class ="fa fa-pencil-square-o fa-2x"></span>
+                            </a>
 
-        <ul class="record_actions">
-      {% if entity.isAuthor(app.user) %}
-      <li>
-        <a href="{{ path('utilisateur_edit', { 'username': entity.username }) }}">
-            Edit
-        </a>
-     </li>
-   
-      {%endif %}
-   
-</ul>
+                          {%endif %}
+                        
+                         </div>
+                 </div> 
+                 {# user informations  #}
+                 <div class="panel-body">
+                    <div class="row">
+                          
+                         <div class="col-sm-7">
+                             <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th>Username</th>
+                                        <td>{{ entity.username }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Prenom</th>
+                                        <td>{{ entity.prenom }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <td>{{ entity.nom }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Email</th>
+                                        <td>{{ entity.email }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Telephone</th>
+                                        <td>{{ entity.telephone }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Address</th>
+                                        <td>{{ entity.localite }}</td>
+                                    </tr>
+                                   
+                                </tbody>
+                          </table>
+
+                         </div>
+
+                          <div class="col-sm-5"> 
+                             <div class="row"> 
+                                  
+                                    <div class="thumbnail">
+                                          <img  src="{{'bundles/xmuser/images/v.jpg'|imagine_filter('my_thumb') }}" />
+                                      <div class="caption col-sm-offset-1">
+                                             <span class="fa fa-star"></span>
+                                             <span class="fa fa-star"></span>
+                                             <span class="fa fa-star"></span>
+                                             <span class="fa fa-star"></span>
+                                             <span class="fa fa-star-half-o"></span>
+                                      </div>
+                                    </div>
+                                  
+                             </div> 
+
+                          </div> 
+
+                    </div>
+
+                     
+
+
+                 </div>
+                     
+             </div>
+         </div>    
+
+
+          <div class="col-sm-5">
+           <div class="panel panel-default">
+                 
+                  <div class="panel-heading">
+                         <h4 style="display:inline"> Derniers Contacts </h4>      
+                        
+                 </div> 
+
+                 <div class="panel-body">
+                   
+                    
+
+                 </div>
+                     
+             </div>
+         </div>    
+
+
+     </div>
+     
+      <div class="row">
+              <div class="col-sm-6">
+                 <div class="panel panel-success">
+                         
+                          <div class="panel-heading">
+                                 <h4 style="display:inline"> Mes Covoiturages </h4>      
+                                
+                         </div> 
+
+                         <div class="panel-body">
+                           
+                            
+
+                         </div>
+                             
+                     </div>
+
+              </div>
+
+             
+      </div>    
+  
+    
 {% endblock %}

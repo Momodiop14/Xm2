@@ -1,0 +1,39 @@
+covoiturage_new:
+    path:     /nouveau/initialiser
+    defaults: { _controller: "XmCovoiturageBundle:Covoiturage:new" }
+
+covoiturage_validate_first_step:
+    path:     /firstValidation
+    defaults: { _controller: "XmCovoiturageBundle:Covoiturage:firstStep" }
+    methods:  POST
+
+covoiturage_finalize:
+    path:     /nouveau/finaliser
+    defaults: { _controller: "XmCovoiturageBundle:Covoiturage:finalize" }
+
+covoiturage_create:
+    path:     /create
+    defaults: { _controller: "XmCovoiturageBundle:Covoiturage:create" }
+    methods:  POST
+
+covoiturage:
+    path:     /
+    defaults: { _controller: "XmCovoiturageBundle:Covoiturage:index" }
+
+covoiturage_show:
+    path:     /{id}/show
+    defaults: { _controller: "XmCovoiturageBundle:Covoiturage:show" }
+
+covoiturage_edit:
+    path:     /{id}/edit
+    defaults: { _controller: "XmCovoiturageBundle:Covoiturage:edit" }
+
+covoiturage_update:
+    path:     /{id}/update
+    defaults: { _controller: "XmCovoiturageBundle:Covoiturage:update" }
+    methods:  [POST, PUT]
+
+covoiturage_delete:
+    path:     /{id}/delete
+    defaults: { _controller: "XmCovoiturageBundle:Covoiturage:delete" }
+    methods:  [POST, DELETE]

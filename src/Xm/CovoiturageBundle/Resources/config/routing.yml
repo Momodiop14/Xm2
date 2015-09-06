@@ -1,3 +1,4 @@
-xm_covoiturage_homepage:
-    path:     /
-    defaults: { _controller: XmCovoiturageBundle:Default:index }
+xm_covoiturage_covoiturage:
+    resource: "@XmCovoiturageBundle/Resources/config/routing/covoiturage.yml"
+    prefix:   /
+

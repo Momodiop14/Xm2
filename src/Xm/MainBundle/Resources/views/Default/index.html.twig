@@ -1,76 +1,13 @@
-{% extends '::base.html.twig' %}
-
-{% block javascripts %}
-     {{parent()}}
-     <script type="text/javascript">
-     $(document).ready(function(){
-
-         if(document.getElementById('message')!=null)
-           {
-           	 notify( document.getElementById('message').value,'info' );
-           }
-      });
-
-     </script>
-   
-
-
-{% endblock %} 
+ {% extends '::base.html.twig' %}   
+       
 
 {% block content %}
-	   {% for flashMessage in app.session.flashbag.get('notice') %}
+	 
+  {{parent()}}
 
-			    <div class="flash-notice">
-           {{ flashMessage }}
-          </div>
+  {%if intention is defined%}
+     <input type="hidden" id="login" /> 
+  {% endif %}
 
-     {% endfor %}
-    
-    <br><br><br><br>
-    <div class="row presentation jumbotron">
-
-        presentation
-
-    </div>
-
-    <div class="row">
-         
-         <div class="jumbotron col-lg-7">
-             temoignage
-
-         </div>
-
-        
-
-         <div class="col-md-offset-2 jumbotron col-lg-3">
-             top villes plus visitées
-
-         </div>
-      
-
-    </div>
-    
-     <div class="row">
-         
-         <div class="jumbotron col-lg-5">
-             recherche rapide
-
-         </div>
-
-        
-
-         <div class="col-md-offset-2 jumbotron col-lg-5">
-             bons plans récents
-
-         </div>
-      
-
-    </div>
-
-
-	
-
-
-
-  
+  {% include 'XmMainBundle:Default:connexion.html.twig' %}
 {% endblock %}

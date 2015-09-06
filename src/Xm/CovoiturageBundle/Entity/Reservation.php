@@ -50,7 +50,7 @@ class Reservation
     private $etatReservation;
     
     /**
-     * @ORM\ManyToOne(targetEntity="Xm\UserBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Xm\UserBundle\Entity\Utilisateur")
      * @ORM\JoinColumn(onDelete="CASCADE")
      **/
     private $passager;
@@ -179,10 +179,10 @@ class Reservation
     /**
      * Set passager
      *
-     * @param \Xm\UserBundle\Entity\User $passager
+     * @param \Xm\UserBundle\Entity\Utilisateur $passager
      * @return Reservation
      */
-    public function setPassager(\Xm\UserBundle\Entity\User $passager )
+    public function setPassager(\Xm\UserBundle\Entity\Utilisateur $passager )
     {
         $this->passager = $passager;
 
@@ -192,7 +192,7 @@ class Reservation
     /**
      * Get passager
      *
-     * @return \Xm\UserBundle\Entity\User 
+     * @return \Xm\UserBundle\Entity\Utilisateur 
      */
     public function getPassager()
     {

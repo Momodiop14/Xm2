@@ -1,15 +1,27 @@
+xm_message:
+    resource: "@XmMessageBundle/Resources/config/routing.yml"
+    prefix:   /
+
 xm_user:
     resource: "@XmUserBundle/Resources/config/routing_user.yml"
     prefix:   /utilisateurs
 
-xm_message:
-    resource: "@XmUserBundle/Resources/config/routing_message.yml"
-    prefix:   /messages
-
 xm_covoiturage:
     resource: "@XmCovoiturageBundle/Resources/config/routing.yml"
-    prefix:   /covoiturages
+    prefix:   /covoiturage
 
 xm_main:
     resource: "@XmMainBundle/Resources/config/routing.yml"
     prefix:   /
+
+
+
+_liip_imagine:
+    resource: "@LiipImagineBundle/Resources/config/routing.xml"
+
+fos_user:
+    resource: "@FOSUserBundle/Resources/config/routing/all.xml"
+
+fos_message:
+    resource: "@FOSMessageBundle/Resources/config/routing.xml"
+    prefix: /messages

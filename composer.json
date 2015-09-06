@@ -19,10 +19,13 @@
         "sensio/distribution-bundle": "~3.0,>=3.0.12",
         "sensio/framework-extra-bundle": "~3.0,>=3.0.2",
         "incenteev/composer-parameter-handler": "~2.0",
-        "knplabs/knp-disqus-bundle": "dev-master",
         "knplabs/knp-paginator-bundle": "^2.4",
-        "ornicar/gravatar-bundle" : "dev-master",
-        "nc/faye-client": "v1.1.0"
+        "jms/security-extra-bundle": "~1.2",
+        "liip/imagine-bundle": "^1.3",
+         "nc/faye-client": "v1.1.0",
+        "friendsofsymfony/message-bundle": "^1.2",
+        "friendsofsymfony/comment-bundle": "^2.0",
+        "friendsofsymfony/user-bundle": "~2.0@dev"
  
     },
     "require-dev": {

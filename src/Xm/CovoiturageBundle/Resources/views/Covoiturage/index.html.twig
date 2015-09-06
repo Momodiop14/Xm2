@@ -1,0 +1,59 @@
+{% extends '::base.html.twig' %}
+
+{% block body -%}
+    <h1>Covoiturage list</h1>
+
+    <table class="records_list">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Placesdispo</th>
+                <th>Trajetsimple</th>
+                <th>Visible</th>
+                <th>Datedepart</th>
+                <th>Dateretour</th>
+                <th>Heuredepart</th>
+                <th>Heureretour</th>
+                <th>Addressdepart</th>
+                <th>Addressretour</th>
+                <th>Resume</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entity in entities %}
+            <tr>
+                <td><a href="{{ path('_show', { 'id': entity.id }) }}">{{ entity.id }}</a></td>
+                <td>{{ entity.placesDispo }}</td>
+                <td>{{ entity.trajetSimple }}</td>
+                <td>{{ entity.visible }}</td>
+                <td>{% if entity.dateDepart %}{{ entity.dateDepart|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>{% if entity.dateRetour %}{{ entity.dateRetour|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>{{ entity.heureDepart }}</td>
+                <td>{{ entity.heureRetour }}</td>
+                <td>{{ entity.addressDepart }}</td>
+                <td>{{ entity.addressRetour }}</td>
+                <td>{{ entity.resume }}</td>
+                <td>
+                <ul>
+                    <li>
+                        <a href="{{ path('_show', { 'id': entity.id }) }}">show</a>
+                    </li>
+                    <li>
+                        <a href="{{ path('_edit', { 'id': entity.id }) }}">edit</a>
+                    </li>
+                </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+        <ul>
+        <li>
+            <a href="{{ path('_new') }}">
+                Create a new entry
+            </a>
+        </li>
+    </ul>
+    {% endblock %}
