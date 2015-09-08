@@ -2,20 +2,70 @@
 
  {% block script  %}
        {{parent()}}
-       <script src="{{asset('Resources/public/js/covoiturage.js') }}"></script>
-                                
+       <script src="{{asset('Resources/public/js/covoiturage.js') }}"></script>                             
  {% endblock %}
+
+ {% block style  %}
+       {{parent()}}
+        <style type="text/css">
+        html, body,.row,.container-fluid,.pane0,.pane1,.pane2{ height: 95%;  }
+        #map { height: 90%; width: 100%; }
+    </style>                                
+ {% endblock %}
+
+
 {% block content %}
 	
+	     	<ol class="col-sm-offset-1 breadcrumb">
+			     <li class="active">Initialisation</li>
+			    <li><a href="#">Finalisation</a>
+			    </li>
+			</ol>
+
    <div class="row">
 	     
 	     <div class="col-sm-4 col-sm-offset-1">
-	   	  {{ form(form) }}
+
+	   	  {{ form_start(form) }}
+            
+          	<div class="panel panel-default">
+			  <div class="panel-heading">Votre itinéraire</div>
+			  <div class="panel-body">
+			    	 {{ form_row(form.addressDepart) }}
+			    	 {{ form_row(form.addressRetour) }}
+			    	 {{ form_row(form.trajets) }}
+			  </div>
+			</div>
+
+
+
+			<div class="panel panel-primary">
+			  <div class="panel-heading">
+			    <h3 class="panel-title">Vos horaires  </h3>
+			  </div>
+			  <div class="panel-body">
+			  	   {{form_row(form.trajetSimple) }}
+			       {{ form_row(form.dateDepart) }}
+			       {{ form_row(form.dateRetour) }}
+			  </div>
+			</div>
+             
+              {{form_row(form.continuer)}}
+
+	   	  {{ form_end(form) }}
 	   	</div>
 
-	   	<div class="">
+	   		<div class="col-sm-6 pane0">
 
-	   	</div>
+			   		 <div class="panel panel-info pane1">
+						  <div class="panel-heading">Carte de l'itinéraire</div>
+						  <div class="panel-body pane2">
+						        <div id="map"></div>  
+						    	
+						  </div>
+					</div>
+		         
+			   	</div>
 
    </div>
     
@@ -23,3 +73,92 @@
 
  
 {% endblock %}
+
+
+
+
+{#  <!DOCTYPE html>
+<html>
+  <head>
+  <script src="http://code.jquery.com/jquery-2.1.4.min.js" ></script>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <style type="text/css">
+      html, body,.row,.container-fluid,.pane0,.pane1,.pane2{ height: 100%;  }
+      #map { height: 90%; width: 100%; }
+    </style>
+    <script type="text/javascript">
+
+        var directionsService , directionsDisplay,map;    
+        function initMap() {
+          directionsDisplay = new google.maps.DirectionsRenderer; 
+          map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: 13.9805465, lng: -14.5622492},
+            zoom: 7
+          });
+          directionsDisplay.setMap(map);
+        }
+
+    </script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDikjrLiRMX1PT2QyH5c2hfH_XGmtFZ8eo&libraries=places"></script>
+  </head>
+  <body onload="initMap()">               
+       
+       <div class="container-fluid">
+
+
+        <div class="row">
+	      
+			     <div class="col-sm-4 col-sm-offset-1">
+
+			   	  {{ form_start(form) }}
+		            
+		          	<div class="panel panel-default">
+					  <div class="panel-heading">Votre itinéraire</div>
+					  <div class="panel-body">
+					    	 {{ form_row(form.addressDepart) }}
+					    	 {{ form_row(form.addressRetour) }}
+					    	 {{ form_row(form.trajets) }}
+					  </div>
+					</div>
+
+
+
+					<div class="panel panel-primary">
+					  <div class="panel-heading">
+					    <h3 class="panel-title">Vos horaires  </h3>
+					  </div>
+					  <div class="panel-body">
+					  	   {{form_row(form.trajetSimple) }}
+					       {{ form_row(form.dateDepart) }}
+					       {{ form_row(form.dateRetour) }}
+					  </div>
+					</div>
+		             
+		              {{form_row(form.continuer)}}
+
+			   	  {{ form_end(form) }}
+			   	</div>
+
+			   	<div class="col-sm-offset-1 col-sm-6 pane0">
+
+			   		 <div class="panel panel-info pane1">
+						  <div class="panel-heading">Carte de l'itinéraire</div>
+						  <div class="panel-body pane2">
+						        <div id="map"></div>  
+						    	
+						  </div>
+					</div>
+		         
+			   	</div>
+
+         </div>
+    </div>    
+       
+
+
+    
+  </body>
+</html> #}

@@ -7,6 +7,18 @@
 
            {% block style%}
                <link href="https://cdn.datatables.net/1.10.9/css/dataTables.bootstrap.min.css" rel="stylesheet" type="text/css" >
+
+
+
+             <style type="text/css">
+             .breadcrumb {background: rgba(245, 245, 245, 0.03); border: 0px solid rgba(245, 245, 245, 1); border-radius: 4px; display: block;}
+              .breadcrumb li {font-size: 14px;}
+              .breadcrumb a {color: rgba(66, 139, 202, 1); text-decoration: none;}
+              .breadcrumb a:hover {color: rgba(42, 100, 150, 1);}
+              .breadcrumb>.active {color: rgba(31, 27, 27, 1);}
+              .breadcrumb>li+li:before {color: rgba(33, 38, 181, 1); content: "\2771\00a0";}
+
+             </style>
                
            {% endblock %}
 
@@ -22,7 +34,8 @@
         
     </head>
     <body >
-             <div class="container-fluid" style="background-color:#FDFDFD" >
+         
+        <div class="container-fluid" style="background-color:#FDFDFD" >
 
 
              {% block header %}
@@ -34,8 +47,9 @@
 
              {% endblock header %}
 
-             <br><br><br>
+             <br><br><br><br>
             
+             
 
              <div> <a href="#top" class='col-sm-offset-11 btn btn-info ancre'> <span class="fa fa-arrow-up"></span> </a>  </div>
              {% block content %}
@@ -100,9 +114,12 @@
                   </div>
                 </div>
              {% endblock content %}
-                        
+
+
+         
+          {# {% include 'BaseFooterScroller.html.twig' %}                #}
+        </div>
         
-         {% include 'BaseFooterScroller.html.twig' %}
         
     </body>
 </html>

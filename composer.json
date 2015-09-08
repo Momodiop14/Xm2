@@ -25,7 +25,8 @@
          "nc/faye-client": "v1.1.0",
         "friendsofsymfony/message-bundle": "^1.2",
         "friendsofsymfony/comment-bundle": "^2.0",
-        "friendsofsymfony/user-bundle": "~2.0@dev"
+        "friendsofsymfony/user-bundle": "~2.0@dev",
+        
  
     },
     "require-dev": {

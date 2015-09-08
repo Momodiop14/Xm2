@@ -16,16 +16,17 @@
                          $('.resetForm').slideDown(500);
                      });
 
-
-                      $('.datepicker').datepicker({
+                     $('.datepicker').datepicker({
                          startDate : '-21915d',
                          endDate   : '-6574d',
                          language : 'fr',
-                         todayHighlight :true,
                          weekStart : 1 ,
                          format: 'dd-mm-yyyy',
                          
                                              });
+                    
+
+
                 });
 
 

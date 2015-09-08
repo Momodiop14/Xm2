@@ -62,23 +62,23 @@
 					    $removeFormA.on('click', function(e) {
 					        // empêche le lien de créer un « # » dans l'URL
 					        e.preventDefault();
-
+                            
+                             $('.step').trigger("updateMap");
 					        // supprime l'élément li pour le formulaire de tag
 					        $tagFormLi.remove();
+
+
 					    });
+
+
                  }
 
+                  $('input[type="checkbox"]').on("change",function () {
+                  	alert("aSome");
+                  });
 
-                  $('.datepicker').datepicker({
-                         startDate : 'today',
-                         endDate   : '+60d',
-                         language : 'fr',
-                         todayHighlight :true,
-                         weekStart : 1 ,
-                         format: 'dd-mm-yyyy',
-
-                                             });
-
-
+        initMap() ;
 		});
 
+
+  

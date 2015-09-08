@@ -4,11 +4,13 @@ namespace Xm\CovoiturageBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Xm\CovoiturageBundle\Entity\Covoiturage;
 use Xm\CovoiturageBundle\Form\CovoiturageType;
+
 
 /**
  * Covoiturage controller.
@@ -69,19 +71,10 @@ class CovoiturageController extends Controller
 
         if ($form->isValid()) {
        
-
-              //getting the post variables 
-            $postParams = $request->request;
-            
-            //getting the session
-            $session = $this->getRequest()->getSession();
-            
-            //storing valid values in session
-            $session->set('postDataFirstStep' ,$postParams);
-            $session->set('entityFirstStep' ,$entity);
-            $session->set('$formFirstStep', $form->createView());
-       
-            return $this->forward( 'XmCovoiturageBundle:Covoiturage:finalize');
+             //saving the request in session
+             $this->getRequest()->getSession()->set('requestFirstStep' ,$request);
+                        
+            return $this->redirect($this->generateUrl('covoiturage_finalize') );
 
 
                                  
@@ -95,18 +88,17 @@ class CovoiturageController extends Controller
 
      /**
      * Displays a form to create a new Covoiturage entity.
-     *
-     * @Route("/nouveau/finaliser", name="_finalize")
-     * @Method("GET")
-     * @Template()
      */
      public function finalizeAction()
-      {
-        return array(
+      { 
+
+         return $this->render('XmCovoiturageBundle:Covoiturage:finalize.html.twig', array(
+          
+                      
             
-            'data' => $this->getRequest()->getSession()->get('postDataFirstStep')
-        
-        );
+        ));
+
+
       }
       
        /**

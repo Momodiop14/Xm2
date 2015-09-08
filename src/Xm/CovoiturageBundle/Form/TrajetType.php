@@ -17,7 +17,7 @@ class TrajetType extends AbstractType
         $builder
              ->add('localiteDepart','text',array(  'attr' => array(
                                                                     'placeholder'=>' point de passage',
-                                                                    'class'=>'address'
+                                                                    'class'=>'address step'
                                                                   ) 
                                                 )
                   )

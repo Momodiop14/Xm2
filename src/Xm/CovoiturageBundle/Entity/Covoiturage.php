@@ -57,39 +57,25 @@ class Covoiturage
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="date_depart", type="date" ,nullable=false)
-     */
-    /**
-     * @Assert\GreaterThanOrEqual("today UTC",groups={"basics"})
+     * @ORM\Column(name="date_depart", type="datetime" ,nullable=false)
+     *
+     * @Assert\LessThanOrEqual("+2 months",groups={"basics"})
+     * @Assert\GreaterThanOrEqual("today",groups={"basics"})
      */
     private $dateDepart;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="date_retour", type="date")
-     */
-    /**
-     * @Assert\GreaterThanOrEqual("today UTC",groups={"basics"})
-     *  @Assert\LessThanOrEqual("+2 months",groups={"basics"})
+     * @ORM\Column(name="date_retour", type="datetime")
+     *
+     *
+     * @Assert\GreaterThanOrEqual("today",groups={"basics"})
+     * @Assert\LessThanOrEqual("+2 months",groups={"basics"})
      */
     private $dateRetour;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="heure_depart", type="time" ,nullable=false)
-     */
-    private $heureDepart;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="heure_retour", type="time")
-     */
-    private $heureRetour;
-
-    /**
+     /**
      * @var string
      *
      * @ORM\Column(name="address_depart", type="string", length=255 ,nullable=false)
@@ -216,52 +202,7 @@ class Covoiturage
         return $this->dateRetour;
     }
 
-    /**
-     * Set heureDepart
-     *
-     * @param \DateTime $heureDepart
-     * @return Covoiturage
-     */
-    public function setHeureDepart($heureDepart)
-    {
-        $this->heureDepart = $heureDepart;
-
-        return $this;
-    }
-
-    /**
-     * Get heureDepart
-     *
-     * @return \DateTime 
-     */
-    public function getHeureDepart()
-    {
-        return $this->heureDepart;
-    }
-
-    /**
-     * Set heureRetour
-     *
-     * @param \DateTime $heureRetour
-     * @return Covoiturage
-     */
-    public function setHeureRetour($heureRetour)
-    {
-        $this->heureRetour = $heureRetour;
-
-        return $this;
-    }
-
-    /**
-     * Get heureRetour
-     *
-     * @return \DateTime 
-     */
-    public function getHeureRetour()
-    {
-        return $this->heureRetour;
-    }
-
+    
     /**
      * Set addressDepart
      *

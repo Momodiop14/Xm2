@@ -15,7 +15,7 @@ class CovoiturageType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-             ->add('trajetSimple' ,'checkbox', array('required' => false) )
+             ->add('trajetSimple' ,'checkbox', array('required' => false ,'label' => 'Trajet Aller/Retour') )
                 
              ->add('addressDepart','text', array(       'label' => 'ville de départ',
                                                  'attr' => array(
@@ -36,39 +36,32 @@ class CovoiturageType extends AbstractType
                         'by_reference' => false,
                         'label' => 'Villes de passage'
                  ))
-             ->add('dateDepart','date', array(       'label' => 'date de départ',
-                                                     'widget' => 'single_text',
-                                                     'format' => 'dd-MM-yyyy',  
+             ->add('dateDepart','datetime', array(  
+                                                    'label' => 'date de départ',
+                                                      'date_widget' => 'single_text',
+                                                      'date_format' => 'dd-MM-yyyy',  
+                                                       'minutes' => array(00,10,20,30,40,50),
+                                                      
+                                                      
                                                       'attr' => array(
-                                                                  'class'=>'datepicker' 
+                                                                  'class'=>'form_date' ,
+                                                                 
                                                                  ) 
                                          )
                   )
-             ->add('dateRetour','date', array(       'label' => 'date de retour',
-                                                     'widget' => 'single_text',
-                                                     'format' => 'dd-MM-yyyy',  
+             ->add('dateRetour','datetime', array(     
+                                                     'label' => 'date de retour',
+                                                     'date_widget' => 'single_text',
+                                                     'date_format' => 'dd-MM-yyyy',  
+                                                      'minutes' => array(00,10,20,30,40,50),
+                                                     'required' => false,
+                                                      
                                                       'attr' => array(
-                                                                  'class'=>'datepicker' 
+                                                                   'class'=>'form_date' ,
+                                                                 
                                                                  ) 
                                          )
                   )
-             ->add('heureDepart','time', array(     
-                                                     'label' => 'heure de départ',
-                                                     'widget' => 'single_text'
-                                                    
-                                         ))
-             ->add('heureRetour','time', array(       'label' => 'heure départ',
-                                                     'widget' => 'single_text'
-                                                     
-                                         ))
-            
-             ->add('resume','textarea', array(   
-                                                 'required' => false,
-                                                 'attr' => array(
-                                                                  'placeholder'=>"Veuillez saisir en quelques phrases les details du voyage comme la taille des bagages que les passagers peuvent amener ,l'acceptation de retard ."
-                                                                 ) 
-                                         )
-                 )
 
             
         ;

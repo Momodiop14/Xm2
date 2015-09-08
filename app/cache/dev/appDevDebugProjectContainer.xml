@@ -648,8 +648,8 @@
     <parameter key="jms_di_extra.disable_grep">false</parameter>
     <parameter key="jms_di_extra.doctrine_integration">true</parameter>
     <parameter key="jms_di_extra.cache_warmer.controller_file_blacklist" type="collection"/>
-    <parameter key="jms_di_extra.doctrine_integration.entity_manager.file">/media/www-data/XarrMatt/app/cache/dev/jms_diextra/doctrine/EntityManager_55eb3fd4d5e20.php</parameter>
-    <parameter key="jms_di_extra.doctrine_integration.entity_manager.class">EntityManager55eb3fd4d5e20_546a8d27f194334ee012bfe64f629947b07e4919\__CG__\Doctrine\ORM\EntityManager</parameter>
+    <parameter key="jms_di_extra.doctrine_integration.entity_manager.file">/media/www-data/XarrMatt/app/cache/dev/jms_diextra/doctrine/EntityManager_55ed81023a0c4.php</parameter>
+    <parameter key="jms_di_extra.doctrine_integration.entity_manager.class">EntityManager55ed81023a0c4_546a8d27f194334ee012bfe64f629947b07e4919\__CG__\Doctrine\ORM\EntityManager</parameter>
     <parameter key="liip_imagine.filter.configuration.class">Liip\ImagineBundle\Imagine\Filter\FilterConfiguration</parameter>
     <parameter key="liip_imagine.filter.manager.class">Liip\ImagineBundle\Imagine\Filter\FilterManager</parameter>
     <parameter key="liip_imagine.data.manager.class">Liip\ImagineBundle\Imagine\Data\DataManager</parameter>
@@ -3407,12 +3407,12 @@
         </argument>
         <argument type="service">
           <service class="Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider" public="false">
-            <argument>55eb3fd4a02807.25390781</argument>
+            <argument>55ed810203de34.45527578</argument>
           </service>
         </argument>
         <argument type="service">
           <service class="Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider" public="false">
-            <argument>55eb3fd4a02807.25390781</argument>
+            <argument>55ed810203de34.45527578</argument>
           </service>
         </argument>
       </argument>
@@ -3498,7 +3498,7 @@
           <argument type="collection">
             <argument key="security.firewall.map.context.secured_area" type="service">
               <service class="Symfony\Component\HttpFoundation\RequestMatcher" public="false">
-                <argument>^(/utilisateurs|/messages/|/login_check|/logout|/covoiturage/)</argument>
+                <argument>^(/utilisateurs|/login_check|/logout|/covoiturage/|/messages/)</argument>
               </service>
             </argument>
             <argument key="security.firewall.map.context.mixed_path" type="service">
@@ -3784,7 +3784,7 @@
         <argument type="service">
           <service class="Symfony\Component\Security\Http\Firewall\AnonymousAuthenticationListener" public="false">
             <argument type="service" id="security.context"/>
-            <argument>55eb3fd4a02807.25390781</argument>
+            <argument>55ed810203de34.45527578</argument>
             <argument type="service" id="monolog.logger.security" on-invalid="null"/>
             <argument type="service" id="security.authentication.manager"/>
           </service>
@@ -3821,7 +3821,7 @@
         <argument type="service">
           <service class="Symfony\Component\Security\Http\Firewall\AnonymousAuthenticationListener" public="false">
             <argument type="service" id="security.context"/>
-            <argument>55eb3fd4a02807.25390781</argument>
+            <argument>55ed810203de34.45527578</argument>
             <argument type="service" id="monolog.logger.security" on-invalid="null"/>
             <argument type="service" id="security.authentication.manager"/>
           </service>
@@ -4279,8 +4279,8 @@
       <argument type="collection"/>
       <argument type="collection"/>
     </service>
-    <service id="doctrine.orm.default_entity_manager" class="EntityManager55eb3fd4d5e20_546a8d27f194334ee012bfe64f629947b07e4919\__CG__\Doctrine\ORM\EntityManager">
-      <file>/media/www-data/XarrMatt/app/cache/dev/jms_diextra/doctrine/EntityManager_55eb3fd4d5e20.php</file>
+    <service id="doctrine.orm.default_entity_manager" class="EntityManager55ed81023a0c4_546a8d27f194334ee012bfe64f629947b07e4919\__CG__\Doctrine\ORM\EntityManager">
+      <file>/media/www-data/XarrMatt/app/cache/dev/jms_diextra/doctrine/EntityManager_55ed81023a0c4.php</file>
       <argument type="service">
         <service class="Doctrine\ORM\EntityManager" public="false">
           <argument type="service" id="doctrine.dbal.default_connection"/>

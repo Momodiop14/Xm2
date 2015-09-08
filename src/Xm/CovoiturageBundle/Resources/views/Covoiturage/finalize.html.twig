@@ -1,0 +1,65 @@
+{% extends '::base_membre.html.twig' %}
+
+ {% block script  %}
+       {{parent()}}
+       <script src="{{asset('Resources/public/js/covoiturage.js') }}"></script>
+                                
+ {% endblock %}
+{% block content %}
+
+   	<ol class="col-sm-offset-1 breadcrumb">
+			     <li class="active">Initialisation</li>
+			    <li><a href="#">Finalisation</a>
+			    </li>
+			</ol>
+   <div class="row">
+	     
+	     <div class="col-sm-5 col-sm-offset-1">
+
+	   	  {{ form_start(form) }}
+            
+          	<div class="panel panel-default">
+			  <div class="panel-heading">Votre itinéraire</div>
+			  <div class="panel-body">
+			    	 {{ form_row(form.addressDepart) }}
+			    	 {{ form_row(form.addressRetour) }}
+			    	 {{ form_row(form.trajets) }}
+			  </div>
+			</div>
+
+
+
+			<div class="panel panel-primary">
+			  <div class="panel-heading">
+			    <h3 class="panel-title">Vos horaires  </h3>
+			  </div>
+			  <div class="panel-body">
+			  	   {{form_row(form.trajetSimple) }}
+			       {{ form_row(form.dateDepart) }}
+			       {{ form_row(form.dateRetour) }}
+			  </div>
+			</div>
+             
+              {{form_row(form.continuer)}}
+
+	   	  {{ form_end(form) }}
+	   	</div>
+
+	   	<div class="col-sm-offset-1 col-sm-5">
+
+	   			<div class="panel panel-info">
+			  <div class="panel-heading">Carte de l'itinéraire</div>
+			  <div class="panel-body">
+			    	 <div id="map">
+
+			    	 </div>
+			  </div>
+			</div>
+         
+	   	</div>
+
+   </div>
+
+
+ 
+{% endblock %}
