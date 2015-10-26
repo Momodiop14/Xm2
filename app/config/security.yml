@@ -24,7 +24,7 @@ security:
 
            remember_me:
              key: someS3cretKey
-             lifetime: 300 # 365 jours en secondes
+             lifetime: 300 
              path: /
              domain : ~
 

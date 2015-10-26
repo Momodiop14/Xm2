@@ -60,17 +60,17 @@ class Covoiturage
      * @ORM\Column(name="date_depart", type="datetime" ,nullable=false)
      *
      * @Assert\LessThanOrEqual("+2 months",groups={"basics"})
-     * @Assert\GreaterThanOrEqual("today",groups={"basics"})
+     * @Assert\GreaterThanOrEqual("now",groups={"basics"},message="votre date ne doit pas etre dans le passé")
      */
     private $dateDepart;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="date_retour", type="datetime")
+     * @ORM\Column(name="date_retour", type="datetime",nullable=true)
      *
      *
-     * @Assert\GreaterThanOrEqual("today",groups={"basics"})
+     * @Assert\GreaterThanOrEqual("now UTC",groups={"basics"},message="votre date ne doit pas etre dans le passé")
      * @Assert\LessThanOrEqual("+2 months",groups={"basics"})
      */
     private $dateRetour;
@@ -105,7 +105,7 @@ class Covoiturage
 
 
     /**
-     * @ORM\OneToMany(targetEntity="Trajet", mappedBy="ref_covoiturage")
+     * @ORM\OneToMany(targetEntity="Trajet", mappedBy="ref_covoiturage" , cascade={"persist"}   )
      **/
      private $trajets;
     
@@ -114,13 +114,38 @@ class Covoiturage
      **/
      private $avis_clients;
 
+      /**
+     * Thread of this comment
+     *
+     * @var ThreadComment
+     * @ORM\OneToOne(targetEntity="ThreadComment" ,inversedBy="refCovoiturage" )
+     * @ORM\JoinColumn(referencedColumnName="id",onDelete="CASCADE")
+     */
+     private $threadComment;
 
+     
+    
+   
+    /**
+     * @Assert\True(message = "la date de retour doit etre postérieure à la date de départ ",groups={"basics"})
+     */
+      public function isDateLegal()
+      {  if ($this->dateRetour ) 
+        {
+          return ( $this->dateRetour > $this->dateDepart);
+        }
+
+        return true ;
+         
+      }
     
 
     public function __construct() 
      {
         $this->trajets = new ArrayCollection();
         $this->avis_clients = new ArrayCollection ();
+        $this->dateDepart = new \DateTime();
+                
      }
 
      /**
@@ -199,7 +224,7 @@ class Covoiturage
      */
     public function getDateRetour()
     {
-        return $this->dateRetour;
+        return  $this->dateRetour;
     }
 
     
@@ -345,14 +370,15 @@ class Covoiturage
     /**
      * Add trajets
      *
-     * @param \Xm\CovoiturageBundle\Entity\Trajet $trajets
+     * @param \Xm\CovoiturageBundle\Entity\Trajet $trajet
      * @return Covoiturage
      */
-    public function addTrajet(\Xm\CovoiturageBundle\Entity\Trajet $trajets)
+    public function addTrajet(\Xm\CovoiturageBundle\Entity\Trajet $trajet)
     {
-        $this->trajets[] = $trajets;
+         $this->trajets[]=$trajet;
+         $trajet->setRefCovoiturage($this);
 
-        return $this;
+         return $this;
     }
 
     /**
@@ -372,7 +398,7 @@ class Covoiturage
      */
     public function getTrajets()
     {
-        return $this->trajets;
+        return $this->trajets->toArray();
     }
 
    
@@ -408,4 +434,30 @@ class Covoiturage
     {
         return $this->avis_clients;
     }
+    
+    /**
+     * Get threadcomment
+     *
+     * @return  
+     */
+    public function getThreadComment()
+    {
+        return $this->threadComment;
+    }
+
+      /**
+     * Set threadcomment
+     *
+     * @param boolean $visible
+     * @return Covoiturage
+     */
+    public function setThreadComment(\Xm\CovoiturageBundle\Entity\ThreadComment $_threadComment)
+    {
+        $this->threadComment = $_threadComment;
+
+        return $this;
+    }
+
+      
+
 }

@@ -8,7 +8,13 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+
+use \Doctrine\Common\Collections\ArrayCollection;
+
 use Xm\CovoiturageBundle\Entity\Covoiturage;
+use Xm\CovoiturageBundle\Entity\Trajet;
+use Xm\CovoiturageBundle\Entity\ThreadComment ;
+
 use Xm\CovoiturageBundle\Form\CovoiturageType;
 
 
@@ -72,8 +78,26 @@ class CovoiturageController extends Controller
         if ($form->isValid()) {
        
              //saving the request in session
-             $this->getRequest()->getSession()->set('requestFirstStep' ,$request);
-                        
+             $this->getRequest()->getSession()->set('requestFirstStep' ,$request->request->get("form_covoiturage") );
+
+             $array_cities[]=$request->request->get("form_covoiturage")["addressDepart"];
+             
+             if( isset( $request->request->get("form_covoiturage")["trajets"]) )
+               {
+                   $escales = $request->request->get("form_covoiturage")["trajets"];
+
+                   foreach ($escales as $key => $value) 
+                   {
+                      $array_cities[]=$value["localiteDepart"]; 
+                   }
+
+               }
+
+              $array_cities[]=$request->request->get("form_covoiturage")["addressRetour"]; 
+
+
+             $this->getRequest()->getSession()->set('cities' ,$array_cities );
+                                                   
             return $this->redirect($this->generateUrl('covoiturage_finalize') );
 
 
@@ -91,14 +115,9 @@ class CovoiturageController extends Controller
      */
      public function finalizeAction()
       { 
-
-         return $this->render('XmCovoiturageBundle:Covoiturage:finalize.html.twig', array(
-          
-                      
-            
-        ));
-
-
+         
+         return $this->render('XmCovoiturageBundle:Covoiturage:finalize.html.twig');
+        
       }
       
        /**
@@ -110,10 +129,74 @@ class CovoiturageController extends Controller
      */
       public function createAction(Request $request)
       {
-         
-            // $em = $this->getDoctrine()->getManager();
-            // $em->persist($entity);
-            // $em->flush();
+          if ( $this->getRequest()->getSession()->has('requestFirstStep') ) 
+
+          {
+            $post1=$this->getRequest()->getSession()->get('requestFirstStep');
+            $post2=$request->request;
+
+
+            $covoiturage=new Covoiturage();
+            
+            if (isset($post1["trajetSimple"]) ) 
+               {
+                 $covoiturage->setTrajetSimple(false);
+                 
+                 $dateTmp =new \DateTime($post1["dateRetour"]["date"]);
+                 $dateTmp->setTime($post1["dateRetour"]["time"]["hour"] , $post1["dateRetour"]["time"]["minute"] );
+                 $covoiturage->setDateDepart($dateTmp);
+
+                 
+              
+               }
+               else
+                  $covoiturage->setTrajetSimple(true);
+            
+            $covoiturage->setplacesDispo($post2->get("placeDispo"));
+            $covoiturage->setVisible(true);
+
+            $dateTmp =new \DateTime($post1["dateDepart"]["date"]);
+            $dateTmp->setTime($post1["dateDepart"]["time"]["hour"] , $post1["dateDepart"]["time"]["minute"] );
+            $covoiturage->setDateDepart($dateTmp);
+
+            $covoiturage->setAddressDepart($post1["addressDepart"]);
+            $covoiturage->setAddressRetour($post1["addressRetour"]);
+            $covoiturage->setResume($post2->get("resume"));
+            $covoiturage->setInitiateur( $this->get('security.context')->getToken()->getUser() );
+           
+            
+            $cities=$this->getRequest()->getSession()->get('cities'); 
+            
+
+             for ($i=0; $i <count($cities)-1 ; $i++) 
+               { 
+                $trajet= new Trajet();
+
+                $trajet->setPrixTrajet($post2->get("price")[$i]);
+                $trajet->setLocaliteDepart($cities[$i]);
+                $trajet->setLocaliteDestination($cities[$i+1] );
+                
+                $covoiturage->addTrajet($trajet);            
+        
+              }
+
+             $filCommentaire = new ThreadComment();
+             $filCommentaire->setPermalink('');
+             $filCommentaire->setRefCovoiturage($covoiturage);
+
+
+             $em = $this->getDoctrine()->getManager();
+             $em->persist($filCommentaire);
+             $em->flush();
+
+             $this->getRequest()->getSession()->remove('cities');
+             $this->getRequest()->getSession()->remove('requestFirstStep');
+
+             $this->getRequest()->getSession()->getFlashBag()->add('loginSuccess', 'Votre covoiturage a été enregistré avec succès et est desormais visible ' );
+             return $this->redirect($this->generateUrl('xm_main_accueil') );
+          }
+
+          return $this->redirect($this->generateUrl('covoiturage_validate_first_step') );  
 
       }
 
@@ -279,7 +362,7 @@ class CovoiturageController extends Controller
     private function createDeleteForm($id)
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('_delete', array('id' => $id)))
+            ->setAction($this->generateUrl('covoiturage_delete', array('id' => $id)))
             ->setMethod('DELETE')
             ->add('submit', 'submit', array('label' => 'Delete'))
             ->getForm()

@@ -30,7 +30,8 @@ class Trajet
 
     /**
      * @ORM\ManyToOne(targetEntity="Covoiturage",inversedBy="trajets")
-     * @ORM\JoinColumn(onDelete="CASCADE")
+     * @ORM\JoinColumn(nullable=false,onDelete="CASCADE")
+     * 
      **/
     private $ref_covoiturage;
 
@@ -93,29 +94,7 @@ class Trajet
         return $this->prixTrajet;
     }
 
-    /**
-     * Set numTrajet
-     *
-     * @param integer $numTrajet
-     * @return Trajet
-     */
-    public function setNumTrajet($numTrajet)
-    {
-        $this->numTrajet = $numTrajet;
-
-        return $this;
-    }
-
-    /**
-     * Get numTrajet
-     *
-     * @return integer 
-     */
-    public function getNumTrajet()
-    {
-        return $this->numTrajet;
-    }
-
+    
    
     /**
      * Set ref_coivoiturage
@@ -123,9 +102,9 @@ class Trajet
      * @param \Xm\CovoiturageBundle\Entity\Covoiturage $refCoivoiturage
      * @return Trajet
      */
-    public function setRefCoivoiturage(\Xm\CovoiturageBundle\Entity\Covoiturage $refCoivoiturage )
+    public function setRefCovoiturage(\Xm\CovoiturageBundle\Entity\Covoiturage $refCovoiturage )
     {
-        $this->ref_coivoiturage = $refCoivoiturage;
+        $this->ref_covoiturage = $refCovoiturage;
 
         return $this;
     }
@@ -135,9 +114,9 @@ class Trajet
      *
      * @return \Xm\CovoiturageBundle\Entity\Covoiturage 
      */
-    public function getRefCoivoiturage()
+    public function getRefCovoiturage()
     {
-        return $this->ref_coivoiturage;
+        return $this->ref_covoiturage;
     }
 
     /**

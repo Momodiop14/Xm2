@@ -3,46 +3,103 @@
  {% block script  %}
        {{parent()}}
        <script src="{{asset('Resources/public/js/covoiturage.js') }}"></script>
+
+       <script type="text/javascript">
+           $(document).ready(function() {
+
+            //  calculateAndDisplayRoute(true);
+
+           });
+       </script>
                                 
  {% endblock %}
 {% block content %}
 
    	<ol class="col-sm-offset-1 breadcrumb">
 			     <li class="active">Initialisation</li>
-			    <li><a href="#">Finalisation</a>
-			    </li>
+			     <li><a href="#">Finalisation</a></li>
 			</ol>
    <div class="row">
 	     
 	     <div class="col-sm-5 col-sm-offset-1">
 
-	   	  {{ form_start(form) }}
+	   	  <form method="POST" action="{{ path('covoiturage_create') }}" name="form_finalize">
+
+	   	  	 
+		          	<div class="panel panel-default">
+					  <div class="panel-heading">Tarification :Fixer les prix de chaque trajet</div>
+					  <div class="panel-body">
+		                    {% set loopValues =  app.session.get("cities")|keys %}
+
+		                     {% set endLoop =  loopValues|length -2 %}
+		                     
+                                  <div class="row"> 
+                                     	  
+                                     	  <div class="col-sm-4 col-sm-offset-1" >
+                                             Places disponibles:
+                                              
+                                     	  </div> 
+
+                                     	  <div class="col-sm-3 col-sm-offset-1">
+		                     	 		 
+									          <input id="place" type="number"class="form-control" name="placeDispo" min="1" required />  
+									     </div>
+		                                
+		                     	 	                 	 	
+		                     	 	
+								</div>
+		                       <br> 
+		                     	 <div class="row">
+
+		                     	 	<div class="col-sm-4 col-sm-offset-1">
+		                     	 		 
+									      {% for i in 0..endLoop %}
+
+									    	{% set villeDepart =  app.session.get("cities")[i]|split(',')  %}
+		                            		{% set villeArrivee =  app.session.get('cities')[i+1] |split(',') %}
+		 
+			                   	   		    {{ villeDepart[0]}} <span class="fa fa-long-arrow-right" ></span> {{ villeArrivee[0]}}
+
+									    
+		                                
+		                     	 	</div>                   	 	
+		                     	 	
+		                            <div class="col-sm-3 col-sm-offset-1">
+		                                 <input type="number"class="form-control" step="50" name="price[]" min="100" required />  
+
+		                     	 	</div>
+			                       
+			      
+		                       	   <br> <br>
+
+		                       	   {% endfor %}
+
+		                    	  </div> 
+	                   	 			  	 	
+
+					  </div>
+					  	
+					  	
+					</div>
+
+
+
+					<div class="panel panel-primary">
+						<div class="panel-heading">
+						  <h3 class="panel-title">Informations supplémentaires </h3>
+						</div>
+						<div class="panel-body">
+						 <textarea class="form-control" rows="10" name="resume" placeholder="Préciser les détails du voyage: bagages,retard"></textarea> 				  	
+						  </div>
+					</div>
+
+
+					 <input type="checkbox"  required> je certifie que je suis titulaire d'un permis de conduire <br>
+					 <button type ="submit" class="btn btn-default">Finaliser </button>
+		            <input type="hidden" name="_form_token"  value="{{ csrf_token('form_covoiturage') }}">
+           </form>
+              
             
-          	<div class="panel panel-default">
-			  <div class="panel-heading">Votre itinéraire</div>
-			  <div class="panel-body">
-			    	 {{ form_row(form.addressDepart) }}
-			    	 {{ form_row(form.addressRetour) }}
-			    	 {{ form_row(form.trajets) }}
-			  </div>
-			</div>
-
-
-
-			<div class="panel panel-primary">
-			  <div class="panel-heading">
-			    <h3 class="panel-title">Vos horaires  </h3>
-			  </div>
-			  <div class="panel-body">
-			  	   {{form_row(form.trajetSimple) }}
-			       {{ form_row(form.dateDepart) }}
-			       {{ form_row(form.dateRetour) }}
-			  </div>
-			</div>
-             
-              {{form_row(form.continuer)}}
-
-	   	  {{ form_end(form) }}
 	   	</div>
 
 	   	<div class="col-sm-offset-1 col-sm-5">
@@ -57,6 +114,12 @@
 			</div>
          
 	   	</div>
+
+
+
+
+
+	   	 
 
    </div>
 

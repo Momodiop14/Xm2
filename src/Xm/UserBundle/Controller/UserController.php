@@ -4,7 +4,7 @@ namespace Xm\UserBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage; 
 use Symfony\Component\Security\Core\User\UserInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
@@ -55,7 +55,7 @@ class UserController extends Controller
      */
     public function showAction($username)
     {
-        $entity = $this->get('security.context')->getToken()->getUser() ;
+        $entity = $this->get('security.token_storage')->getToken()->getUser() ;
          if( $entity->isAuthor($username ) == false )
              {
                  $em = $this->getDoctrine()->getManager();
@@ -85,7 +85,7 @@ class UserController extends Controller
     public function editAction($username)
     {
         
-        $entity = $this->get('security.context')->getToken()->getUser() ;
+        $entity = $this->get('security.token_storage')->getToken()->getUser() ;
         if( $entity->isAuthor($username ) )
            {
              $editForm = $this->createEditForm($entity);

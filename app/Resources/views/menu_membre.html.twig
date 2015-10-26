@@ -16,7 +16,7 @@
                         
                         <ul class="nav navbar-nav navbar-right">
                                 <li role="navigation" ><a href="{{ path('xm_main_accueil') }}"><span class="fa fa-home fa-2x"></span> Accueil</a></li>
-                                <li role="navigation"><a href="{{ path('utilisateur_show',{'username': app.security.getToken().getUser().getUsername() } ) }}"> <span class="fa fa-user fa-2x"></span> Mon profil</a></li>
+                                <li role="navigation"><a href="{{ path('utilisateur_show',{'username': app.user.username} ) }}"> <span class="fa fa-user fa-2x"></span> Mon profil</a></li>
                                 <li role="navigation"><a href="{{ path('fos_message_inbox') }}"><span class="fa fa-envelope-o fa-2x"></span> Messages <span class="badge">{{ fos_message_nb_unread() }}</span></a></li>
                                 <li role="navigation"><a href="{{path('covoiturage_new')}}"><span class="fa fa-car fa-2x"></span> Proposer un covoiturage</a></li>
                                 <li role="navigation"><a href="#"><span class="fa fa-globe fa-2x"></span> Notifications</a></li>

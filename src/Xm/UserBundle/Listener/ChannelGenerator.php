@@ -1,6 +1,6 @@
 <?php
 
-namespace Xm\UserBundle\Model;
+namespace Xm\UserBundle\Listener;
 
 
 class ChannelGenerator

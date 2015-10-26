@@ -25,3 +25,9 @@ fos_user:
 fos_message:
     resource: "@FOSMessageBundle/Resources/config/routing.xml"
     prefix: /messages
+
+fos_comment_api:
+    type: rest
+    resource: "@FOSCommentBundle/Resources/config/routing.yml"
+    prefix: /covoiturage
+    defaults: { _format: html }

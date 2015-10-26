@@ -1,6 +1,14 @@
-{% extends '::base.html.twig' %}
+{% extends '::base_membre.html.twig' %}
 
-{% block body -%}
+{% block style%}
+   
+    {% stylesheets '@FOSCommentBundle/Resources/assets/css/comments.css' %}
+        <link rel="stylesheet" href="{{ asset_url }}" type="text/css" />
+    {% endstylesheets %}
+
+{% endblock %}
+
+{% block content %}
     <h1>Covoiturage</h1>
 
     <table class="record_properties">
@@ -29,14 +37,7 @@
                 <th>Dateretour</th>
                 <td>{{ entity.dateRetour|date('Y-m-d H:i:s') }}</td>
             </tr>
-            <tr>
-                <th>Heuredepart</th>
-                <td>{{ entity.heureDepart }}</td>
-            </tr>
-            <tr>
-                <th>Heureretour</th>
-                <td>{{ entity.heureRetour }}</td>
-            </tr>
+            
             <tr>
                 <th>Addressdepart</th>
                 <td>{{ entity.addressDepart }}</td>
@@ -52,17 +53,5 @@
         </tbody>
     </table>
 
-        <ul class="record_actions">
-    <li>
-        <a href="{{ path('') }}">
-            Back to the list
-        </a>
-    </li>
-    <li>
-        <a href="{{ path('_edit', { 'id': entity.id }) }}">
-            Edit
-        </a>
-    </li>
-    <li>{{ form(delete_form) }}</li>
-</ul>
+{% include 'FOSCommentBundle:Thread:async.html.twig' with {'id': entity.threadComment.id } %}
 {% endblock %}

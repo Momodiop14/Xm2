@@ -29,8 +29,10 @@ class AppKernel extends Kernel
              new FOS\MessageBundle\FOSMessageBundle(),
              new Knp\Bundle\PaginatorBundle\KnpPaginatorBundle(),
              new FOS\UserBundle\FOSUserBundle(),
-             #new FOS\RestBundle\FOSRestBundle(),
-             #new FOS\CommentBundle\FOSCommentBundle(),
+             new FOS\RestBundle\FOSRestBundle(),
+             new FOS\CommentBundle\FOSCommentBundle(),
+             new JMS\SerializerBundle\JMSSerializerBundle($this),
+
             
              
 

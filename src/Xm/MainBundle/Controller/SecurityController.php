@@ -4,7 +4,6 @@ namespace Xm\MainBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request ;
-use Symfony\Component\Security\Core\SecurityContext;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use JMS\SecurityExtraBundle\Annotation\PreAuthorize;
@@ -36,10 +35,7 @@ class SecurityController extends Controller
        );
      }
 
-     public function resetAction($value='')
-     {
-       # code...
-     }
+    
 
  
    

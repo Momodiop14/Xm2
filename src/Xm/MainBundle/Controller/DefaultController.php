@@ -5,7 +5,7 @@ namespace Xm\MainBundle\Controller;
     
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request ;
-use Symfony\Component\Security\Core\SecurityContext;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use JMS\SecurityExtraBundle\Annotation\PreAuthorize;
@@ -20,13 +20,16 @@ class DefaultController extends Controller
        
       public function indexAction()
          {
-               if($this->get('security.context')->isGranted('ROLE_USER') )
+               if($this->isGranted('ROLE_USER') )
                     {
                      
                       return $this->render('XmMainBundle:Default:index_membre.html.twig' );
+                     
                     }
+               
+              
 
-               return $this->render('XmMainBundle:Default:index.html.twig');
+              return $this->render('XmMainBundle:Default:index.html.twig');
          }
 
      public function guideAction()
